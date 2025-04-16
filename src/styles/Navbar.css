@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kanit:wght@600&display=swap');
+* {
+  padding: 0px;
+  margin: 0px;
+  box-sizing: border-box;
+  font-family: "Inter", arial;
+}
+
+
+nav {
+  display: flex;
+  width: 100vw;
+  height: 10vh;
+  flex-direction: row;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(194, 194, 194, 1);
+}
+
+.Nav-Items {
+  padding-top: 3.5vh;
+  display: flex;
+  list-style: none;
+  gap: 10px;
+  width: 50%;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+
+.Titulo {
+  padding: 2vh;
+  font-size: 36px;
+}
+
+
+.conectar {
+  background: #36227F;
+  background: linear-gradient(90deg, rgba(54, 34, 127, 1) 0%, rgba(142, 60, 229, 1) 100%);
+  padding: 6px 14px;
+  text-decoration: none;
+  border-radius: 25px;
+  font-weight: bold;
+  color: #fff;
+  
+}
+
+a {
+  text-decoration: none;
+}
+
+
+.contrate, .seja-contratado {
+  color: black;
+}
+
+
