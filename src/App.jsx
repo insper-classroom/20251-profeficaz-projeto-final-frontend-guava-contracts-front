@@ -1,14 +1,13 @@
 import { useState } from 'react'
 import {Routes, Route, Navigate} from 'react-router-dom'
-import Navbar from './pages/Navbar.jsx'
-
+import LandingPage from './pages/LandingPage.jsx'
 
 function App() {
 
   return (
     <>
       <Routes>
-        <Route path="/" element={<Navbar/>} />
+        <Route path="/" element={<LandingPage/>} />
       </Routes>
     </>
   )
