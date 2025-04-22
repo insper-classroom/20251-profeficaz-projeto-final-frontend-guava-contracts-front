@@ -44,11 +44,18 @@
   border-style: none;
   border-radius: 13px;
   padding: 5%;
+  font-size: 16px;
 }
 
 .apresentacao {
   text-align: end;
-  width: 50%;
+  margin-left: 10%;
+  width: 40%;
+  font-size: 52px;
+  font-weight: bold;
 }
 
+.texto_apresentacao {
+  padding-top: 10%;
+}
 

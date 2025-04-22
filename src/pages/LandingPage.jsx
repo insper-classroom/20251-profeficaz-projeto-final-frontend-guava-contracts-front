@@ -1,5 +1,6 @@
 import {useState, useEffect} from 'react'
 import NavBar from './Navbar.jsx'
+import Categorias from './Categorias.jsx'
 import '../styles/LandingPage.css'
 
 function LandingPage() {
@@ -17,11 +18,17 @@ function LandingPage() {
             </div>
           </div>
 
+
           <div className="apresentacao">
-            Descentralizando o mercado de freelancing com Guava 
+            <p className="texto_apresentacao">
+              Descentralizando o mercado de freelancing com Guava 
+            </p>
           </div>
         </div>
+
+      <Categorias/>
       </div>
+
 
     </>
   )
