@@ -13,7 +13,7 @@ function Categorias () {
 
       <div className="container_categorias">
         <div className="first_row">
-          <a href="#">
+          <a href="/categoria">
             <div className="categoria">
               <div className="box_titulo_categoria">
                 <p className="titulo_categoria">Categoria id</p>
