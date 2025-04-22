@@ -53,4 +53,9 @@ a {
   color: black;
 }
 
-
+#guava {
+  font-weight: bold;
+  background: linear-gradient(90deg, rgba(87, 0, 201, 1) 0%, rgba(189, 138, 255, 1) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

@@ -1,6 +1,7 @@
 import '../styles/Categoria.css'
 import Navbar from './Navbar'
 import React from 'react'
+import { useParams } from 'react-router-dom'
 
 function Categoria () {
   
@@ -8,12 +9,14 @@ function Categoria () {
   {"address": "askdjhf1239841epkl@#P$#" ,"nome": "Bolivia", "tempoDeAtuacao": "2 anos", "avaliacao": 4.5},
   {"address": "askdjhf1239841epkl@#P$#" ,"nome": "Nadottins", "tempoDeAtuacao": "500 anos", "avaliacao": 25}
 ]
+
+const {id} = useParams()
   
   return (
   <>
   <Navbar/>
     <div className="container">
-      <p className="titulo">Categoria id</p>
+      <p className="titulo">Categoria {id}</p>
     
       <div className='lista_categoria_container'>
         <ul className='header_lista'>

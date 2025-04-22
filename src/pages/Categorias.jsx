@@ -13,7 +13,7 @@ function Categorias () {
 
       <div className="container_categorias">
         <div className="first_row">
-          <a href="/categoria">
+          <a href="/categorias/1">
             <div className="categoria">
               <div className="box_titulo_categoria">
                 <p className="titulo_categoria">Categoria id</p>
@@ -21,7 +21,7 @@ function Categorias () {
             </div>
           </a>
 
-          <a href="#">
+          <a href="/categorias/2">
             <div className="categoria">
               <div className="box_titulo_categoria">
                 <p className="titulo_categoria">Categoria id</p>

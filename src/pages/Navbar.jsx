@@ -7,7 +7,7 @@ function Navbar() {
   return (
       <nav>
         <div className="Titulo">
-          Guava
+          <a id='guava' href="/">Guava</a>
         </div>
 
         <ul className="Nav-Items">
