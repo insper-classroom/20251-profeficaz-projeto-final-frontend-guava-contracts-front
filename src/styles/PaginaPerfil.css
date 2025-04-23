@@ -1,0 +1,74 @@
+.container_pagina_perfil {
+  padding: 4%;
+  display: flex;
+  flex-direction: row;
+  gap: 5%
+}
+
+.container_perfil {
+  width: 20%;
+  height: 75vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5%;
+  border: 2px solid rgba(194, 194, 194, 1);
+  border-radius: 12px;
+}
+
+
+.container_portifolio {
+  width: 70%;
+  height: auto;
+  background-color: white;
+  border-radius: 10px;
+  border: 2px solid rgba(194, 194, 194, 1);
+  display: flex;
+  flex-direction: column;
+
+  
+}
+
+.div_foto_perfil {
+  width: 90%;
+  height: 40%;
+  margin: 15% 5% 5% 5%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+}
+
+.foto_perfil {
+  width: 35vh;
+  height: 35vh;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.desc_perfil {
+  text-align: left;
+  color: #404040;
+  
+}
+
+.detalhes_perfil {
+  width: 90%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  gap:10px;
+}
+
+#nome {
+  font-size: 1.9rem;
+  font-weight: bolder;
+  padding: 0% 0% 3% 3%
+}
+
+#descricao {
+  padding: 0% 0% 3% 0%;
+}
+
+
+

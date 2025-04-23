@@ -1,0 +1,61 @@
+* {
+  margin: 0;
+  padding: 0; 
+  box-sizing: border-box;
+}
+
+
+.container {
+  width: 100%;
+  height: 100vh;
+}
+
+.pesquisa_apresentacao {
+  display: flex;
+  flex-direction: row;
+  margin: 4%;
+  height:40vh
+}
+
+.pesquisa {
+  border-right: 2px solid rgba(194, 194, 194, 1);
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.espaco_pesquisa {
+  border-radius: 10px;
+  width: 80%;
+  background: #36227F;
+  background: linear-gradient(180deg, rgba(54, 34, 127, 1) 0%, rgba(142, 60, 229, 1) 100%);
+  height: 80%;
+}
+
+.barra_pesquisa {
+  padding: 6%;
+  width: 80%;
+}
+
+.input_pesquisa {
+  height: 50px;
+  width: 100%;
+  border-style: none;
+  border-radius: 13px;
+  padding: 5%;
+  font-size: 16px;
+}
+
+.apresentacao {
+  text-align: end;
+  margin-left: 10%;
+  width: 40%;
+  font-size: 52px;
+  font-weight: bold;
+}
+
+.texto_apresentacao {
+  padding-top: 10%;
+}
+

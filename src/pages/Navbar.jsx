@@ -7,7 +7,7 @@ function Navbar() {
   return (
       <nav>
         <div className="Titulo">
-          Guava
+          <a id='guava' href="/">Guava</a>
         </div>
 
         <ul className="Nav-Items">
@@ -15,7 +15,7 @@ function Navbar() {
             <a href="#" className = "seja-contratado" > Seja Contratado</a>
           </li>
           <li>
-            <a href="#" className="contrate"> Contrate</a>
+            <a href="/categorias" className="contrate"> Contrate</a>
           </li>
           <li >
             <a href="#" className="conectar"> Conectar</a>
