@@ -1,14 +1,15 @@
 import { useState } from 'react'
-import {Routes, Route, Navigate} from 'react-router-dom'
-import Navbar from './pages/Navbar.jsx'
-
+import {Routes, Route} from 'react-router-dom'
+import LandingPage from './pages/LandingPage.jsx'
+import Categoria from './pages/Categoria.jsx'
 
 function App() {
 
   return (
     <>
       <Routes>
-        <Route path="/" element={<Navbar/>} />
+        <Route path="/" element={<LandingPage/>} />
+        <Route path="/categoria" element={<Categoria/>} />
       </Routes>
     </>
   )
