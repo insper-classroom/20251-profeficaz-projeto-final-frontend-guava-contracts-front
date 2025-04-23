@@ -20,28 +20,35 @@
 .container_portifolio {
   width: 70%;
   height: auto;
-  background-color: red;
+  background-color: white;
+  border-radius: 10px;
+  border: 2px solid rgba(194, 194, 194, 1);
   display: flex;
+  flex-direction: column;
+
+  
 }
 
 .div_foto_perfil {
   width: 90%;
   height: 40%;
-  margin: 5% 5% 5% 5%;
+  margin: 15% 5% 5% 5%;
   display: flex;
   justify-content: center;
   align-items: center;
+  
 }
 
 .foto_perfil {
-  width: 30vh;
-  height: 30vh;
+  width: 35vh;
+  height: 35vh;
   border-radius: 50%;
-  background-color: blue;
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 .desc_perfil {
   text-align: left;
+  color: #404040;
   
 }
 
@@ -52,3 +59,16 @@
   flex-direction: column;
   gap:10px;
 }
+
+#nome {
+  font-size: 1.9rem;
+  font-weight: bolder;
+  padding: 0% 0% 3% 3%
+}
+
+#descricao {
+  padding: 0% 0% 3% 0%;
+}
+
+
+
