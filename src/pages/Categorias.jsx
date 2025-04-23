@@ -3,82 +3,44 @@ import '../styles/Categorias.css'
 
 function Categorias () {
 
-
+const categorias = [
+    {"nome": "Web Dev", "id": 1},
+    {"nome": "Web Dev", "id": 2},
+    {"nome": "Web Dev", "id": 3},
+    {"nome": "Web Dev", "id": 4},
+    {"nome": "Web Dev", "id": 5},
+    {"nome": "Web Dev", "id": 6},
+    {"nome": "Web Dev", "id": 7},
+  ]
 
   return (
+
     <div className="container_geral_categorias">
       <p id="titulo_categorias">
         Categorias:
       </p>
 
       <div className="container_categorias">
-        <div className="first_row">
-          <a href="/categorias/1">
-            <div className="categoria">
-              <div className="box_titulo_categoria">
-                <p className="titulo_categoria">Categoria id</p>
-              </div>
-            </div>
-          </a>
 
-          <a href="/categorias/2">
-            <div className="categoria">
-              <div className="box_titulo_categoria">
-                <p className="titulo_categoria">Categoria id</p>
+        <ul className="lista_categorias" >
+        {categorias.map(categoria => (
+            <a href={`/categorias/${categoria.id}`} className="categoria_link" key={categoria.id}>
+              <div className='container_da_categoria' key={categoria.id}>
+                <li className='titulo_da_categoria'>
+                  {categoria.nome}
+                </li>
               </div>
-            </div>
-          </a>
-          <a href="#">
-            <div className="categoria">
-              <div className="box_titulo_categoria">
-                <p className="titulo_categoria">Categoria id</p>
-              </div>
-            </div>
-          </a>
-          <a href="#">
-            <div className="categoria">
-              <div className="box_titulo_categoria">
-                <p className="titulo_categoria">Categoria id</p>
-              </div>
-            </div>
-          </a>
-          <a href="#">
-            <div className="categoria">
-              <div className="box_titulo_categoria">
-                <p className="titulo_categoria">Categoria id</p>
-              </div>
-            </div>
-          </a>
-         
-        </div>
+            </a>
+            
+                     
+        ))}
         
-        <div className="second_row">
-          <a href="#">
-            <div className="categoria">
-              <div className="box_titulo_categoria">
-                <p className="titulo_categoria">Categoria id</p>
-              </div>
-            </div>
-          </a>
-           <a href="#">
-            <div className="categoria">
-              <div className="box_titulo_categoria">
-                <p className="titulo_categoria">Categoria id</p>
-              </div>
-            </div>
-          </a>
-           <a href="#">
-            <div className="categoria">
-              <div className="box_titulo_categoria">
-                <p className="titulo_categoria">Categoria id</p>
-              </div>
-            </div>
-          </a>
-       </div>
-      </div>
-    
+        </ul>
+        <a href="/categorias">
+
+        </a>
+        </div>
     </div>
-    
   )
 }
 

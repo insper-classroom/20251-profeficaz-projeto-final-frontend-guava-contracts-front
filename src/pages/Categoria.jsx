@@ -32,7 +32,7 @@ const {id} = useParams()
         </ul>
         {rows.map(row => (
           <ul className='body_lista' key={row.address}>
-            <a href="#" className='row_lista'>
+            <a href={`/perfil/${row.address}`} className='row_lista'>
               <div className='row_div'>
                 <li className='list_item'>
                   {row.nome}
