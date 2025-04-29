@@ -48,7 +48,6 @@
 
 .desc_perfil {
   text-align: left;
-  color: #404040;
   
 }
 
@@ -70,5 +69,10 @@
   padding: 0% 0% 3% 0%;
 }
 
+.lista_servicos {
+  width: 100%;
+  height: auto;
+  
+}
 
 
