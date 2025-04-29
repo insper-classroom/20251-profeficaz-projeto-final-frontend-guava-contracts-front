@@ -7,7 +7,7 @@ function Avaliacao ({avaliacao}) {
 
   for (let i=1; i <= 5; i++) {
     if (i <= fullStars) {
-      stars.push(<FaStar key={i} className="star filled "/>)
+      stars.push(<FaStar key={i} className="star filled"/>)
     } else if (i === fullStars + 1 && temMeiaEstrela) {
       stars.push(<FaStarHalfAlt key={i} className="star half"/>)
     } else {

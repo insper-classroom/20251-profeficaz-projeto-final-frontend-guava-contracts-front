@@ -85,18 +85,18 @@ function Navbar() {
           <a href="#" className="seja-contratado"> Seja Contratado</a>
         </li>
         <li>
-          <a href="/categorias" className="contrate"> Contrate</a>
+          <a href="#" className="contrate"> Contrate</a>
         </li>
         <li className="wallet-controls">
           <button
             onClick={contaConectada ? null : conectarCarteira}
-            className="conectar"
+            className="conectar-btn"
             disabled={!!contaConectada}
-          >   
+          >
             {formatarEndereco(contaConectada)}
           </button>
           {contaConectada && (
-            <button onClick={desconectarCarteira} className="conectar">
+            <button onClick={desconectarCarteira} className="desconectar-btn">
               Desconectar
             </button>
           )}
