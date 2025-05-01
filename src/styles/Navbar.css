@@ -59,3 +59,76 @@ a {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+.metamask-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.metamask-popup {
+  background: #fff;
+  padding: 30px 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  animation: popupFadeIn 0.3s ease-in-out;
+  max-width: 400px;
+  width: 90%;
+}
+
+.metamask-popup h2 {
+  margin-bottom: 10px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #111;
+}
+
+.metamask-popup p {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.metamask-popup button {
+  font-size: 1rem;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.metamask-popup .install-btn {
+  background: linear-gradient(90deg, #6e2feb, #a74cf2);
+  color: white;
+  font-weight: 500;
+}
+
+.metamask-popup .install-btn:hover {
+  opacity: 0.9;
+}
+
+.metamask-popup .close-btn {
+  background: none;
+  color: #333;
+  text-decoration: underline;
+}
+
+@keyframes popupFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

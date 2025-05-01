@@ -13,7 +13,7 @@ function LandingPage() {
           <div className="pesquisa">
             <div className="espaco_pesquisa">
               <form className="barra_pesquisa">
-                <input className="input_pesquisa" placeholder="Qual serviço está procurando hoje?" />
+                <input className="input_pesquisa" placeholder="O que você está procurando hoje?" />
               </form>
             </div>
           </div>
@@ -29,7 +29,7 @@ function LandingPage() {
       <Categorias/>
       </div>
 
-
+    
     </>
   )
 }
