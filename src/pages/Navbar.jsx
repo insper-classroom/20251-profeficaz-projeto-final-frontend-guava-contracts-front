@@ -94,7 +94,7 @@
 
           <ul className="Nav-Items">
             <li>
-              ` <a href="#" onClick={toggleOverlay} className="seja-contratado">Seja Contratado</a>
+               <a href="#" onClick={toggleOverlay} className="seja-contratado">Seja Contratado</a>
             </li>
             <li>
               <a href="/categorias" className="contrate"> Contrate</a>
