@@ -4,11 +4,12 @@ import Categorias from './Categorias.jsx'
 import '../styles/LandingPage.css'
 
 function LandingPage() {
+
+
  
   return (
     <>
-      <NavBar/>
-      <div className="container">
+        <NavBar/> <div className="container">
         <div className="pesquisa_apresentacao">
           <div className="pesquisa">
             <div className="espaco_pesquisa">
@@ -28,8 +29,6 @@ function LandingPage() {
 
       <Categorias/>
       </div>
-
-
     </>
   )
 }
