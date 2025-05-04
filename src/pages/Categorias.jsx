@@ -1,17 +1,21 @@
+import { useEffect } from 'react'
 import '../styles/Categorias.css'
+import { useState } from 'react'
+import axios from 'axios';
 
 
 function Categorias () {
+  
+  const [categorias, setCategorias] = useState([]);
 
-const categorias = [
-    {"nome": "Web Dev", "id": 1},
-    {"nome": "Web Dev", "id": 2},
-    {"nome": "Web Dev", "id": 3},
-    {"nome": "Web Dev", "id": 4},
-    {"nome": "Web Dev", "id": 5},
-    {"nome": "Web Dev", "id": 6},
-    {"nome": "Web Dev", "id": 7},
-  ]
+  useEffect(() => {
+    axios.get('http://127.0.0.1:5000/categoria')
+    .then((response) => {
+        console.log(response.data.dados)
+        setCategorias(response.data.dados)
+      })
+    .catch((error) => console.error("erro ao buscar categorias", error))
+  }, [])
 
   return (
 
@@ -24,9 +28,9 @@ const categorias = [
 
         <ul className="lista_categorias" >
         {categorias.map(categoria => (
-            <a href={`/categorias/${categoria.id}`} className="categoria_link" key={categoria.id}>
-              <div className='container_da_categoria' key={categoria.id}>
-                <li className='titulo_da_categoria'>
+            <a href={`/categorias/${categoria.id}`} className="categoria_link" key={categoria._id}>
+              <div className='container_da_categoria' >
+                <li className='titulo_da_categoria' >
                   {categoria.nome}
                 </li>
               </div>
