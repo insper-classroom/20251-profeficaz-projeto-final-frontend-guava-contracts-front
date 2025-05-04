@@ -102,13 +102,13 @@ function Navbar() {
         <li className="wallet-controls">
           <button
             onClick={contaConectada ? null : conectarCarteira}
-            className="conectar-btn"
+            className="conectar"
             disabled={!!contaConectada}
           >   
             {formatarEndereco(contaConectada)}
           </button>
           {contaConectada && (
-            <button onClick={desconectarCarteira} className="desconectar-btn">
+            <button onClick={desconectarCarteira} className="desconectar">
               Desconectar
             </button>
           )}

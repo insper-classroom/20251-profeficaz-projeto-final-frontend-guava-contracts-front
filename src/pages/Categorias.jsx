@@ -5,16 +5,16 @@ import axios from 'axios';
 
 
 function Categorias () {
-  
+
   const [categorias, setCategorias] = useState([]);
 
   useEffect(() => {
     axios.get('http://127.0.0.1:5000/categoria')
-    .then((response) => {
-        console.log(response.data.dados)
+      .then((response) => {
+        console.log(response.data)
         setCategorias(response.data.dados)
       })
-    .catch((error) => console.error("erro ao buscar categorias", error))
+      .catch((error) => console.error("erro ao buscar categorias", error))
   }, [])
 
   return (
@@ -27,23 +27,24 @@ function Categorias () {
       <div className="container_categorias">
 
         <ul className="lista_categorias" >
-        {categorias.map(categoria => (
-            <a href={`/categorias/${categoria.id}`} className="categoria_link" key={categoria._id}>
-              <div className='container_da_categoria' >
-                <li className='titulo_da_categoria' >
-                  {categoria.nome}
-                </li>
-              </div>
-            </a>
-            
-                     
-        ))}
-        
+          {categorias.map(categoria => (
+            <li key={categoria._id}>
+              <a href={`/categorias/${categoria._id}`} className="categoria_link">
+                <div className='container_da_categoria'>
+                  <span className='titulo_da_categoria'>
+                    {categoria.Name}
+                  </span>
+                </div>
+              </a>
+            </li>           
+
+          ))}
+
         </ul>
         <a href="/categorias">
 
         </a>
-        </div>
+      </div>
     </div>
   )
 }
