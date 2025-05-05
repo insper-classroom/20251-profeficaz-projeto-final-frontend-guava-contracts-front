@@ -29,7 +29,6 @@ function LandingPage() {
 
       <Categorias/>
       </div>
-
     
     </>
   )

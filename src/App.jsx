@@ -6,6 +6,7 @@ import ContrateCategorias from './pages/ContrateCategorias.jsx'
 import PaginaPerfil from './pages/PaginaPerfil.jsx'
 import AvaliacaoContratante from './pages/AvaliacaoContratante.jsx'
 import AvaliacaoFreela from './pages/AvaliacaoFreela.jsx'
+import PerfilUsuario from './pages/PerfilUsuario.jsx'
 
 function App() {
 
@@ -18,6 +19,7 @@ function App() {
         <Route path="/perfil/:id" element={<PaginaPerfil/>} />
         <Route path="/avaliacaocontratante" element={<AvaliacaoContratante/>} />
         <Route path="/avaliacaofreela" element={<AvaliacaoFreela/>} />
+        <Route path="/perfilusuario" element={<PerfilUsuario/>} />
       </Routes>
     </>
   )

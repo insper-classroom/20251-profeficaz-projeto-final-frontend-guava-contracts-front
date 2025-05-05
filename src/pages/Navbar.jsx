@@ -102,15 +102,21 @@ function Navbar() {
         <li className="wallet-controls">
           <button
             onClick={contaConectada ? null : conectarCarteira}
-            className="conectar"
+            className="nome-usuario-nav"
             disabled={!!contaConectada}
-          >   
+          >
             {formatarEndereco(contaConectada)}
           </button>
           {contaConectada && (
+            <>
             <button onClick={desconectarCarteira} className="desconectar">
-              Desconectar
+              Sair
             </button>
+            <a href="/perfilusuario" className="link-perfil-usuario"> 
+            Meu Perfil
+            </a>
+            </>
+
           )}
         </li>
       </ul>
