@@ -4,11 +4,23 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 
 function Categoria () {
-  
+
+  // Vou alterar colocando endereços unicos para cada um deles --> address
+  // esse endereço consequetemente vai aparecer na URL quando for pra pag de perfil e etc
   const rows = [
-  {"address": "askdjhf1239841epkl@#P$#" ,"nome": "Bolivia", "tempoDeAtuacao": "2 anos", "avaliacao": 4.5},
-  {"address": "askdjhf1239841epkl@#P$#" ,"nome": "Nadottins", "tempoDeAtuacao": "500 anos", "avaliacao": 25}
-]
+    {
+      "address": "0x123abc", 
+      "nome": "Bolivia", 
+      "tempoDeAtuacao": "2 anos", 
+      "avaliacao": 4.5
+    },
+    {
+      "address": "0x456def", 
+      "nome": "Nadottins", 
+      "tempoDeAtuacao": "500 anos", 
+      "avaliacao": 2.5
+    }
+  ]
 
 const {id} = useParams()
   

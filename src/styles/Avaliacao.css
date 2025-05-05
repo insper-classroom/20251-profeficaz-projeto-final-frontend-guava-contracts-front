@@ -1,0 +1,17 @@
+.stars-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 8px 0;
+  }
+  
+  .star-filled {
+    color: #FFD700; /* Cor dourada para estrelas preenchidas */
+    font-size: 1.2rem;
+  }
+  
+  .star-empty {
+    color: #FFD700; /* Mesma cor, mas com opacidade para estrelas vazias */
+    opacity: 0.5;
+    font-size: 1.2rem;
+  }

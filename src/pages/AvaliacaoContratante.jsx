@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import '../styles/AvaliacaoContratante.css';
+import { useNavigate } from 'react-router-dom';
+
 
 function AvaliacaoContratante() {
   const [nota, setNota] = useState(0);
   const [descricao, setDescricao] = useState('');
+  const navigate = useNavigate();
 
   const handleStarClick = (value) => {
     setNota(value);
@@ -16,6 +19,7 @@ function AvaliacaoContratante() {
     alert('Avaliação enviada com sucesso!');
     setNota(0);
     setDescricao('');
+    navigate('/');
   };
 
   return (
