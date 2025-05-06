@@ -68,7 +68,7 @@ function SejaContratado({ state, onClose }) {
             </form>
             <button className="close-modal" onClick={onClose}>X</button>
           </div>
-        </div>
+        </div>  
       )}
     </>
   );

@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import '../styles/Navbar.css';
 import React from 'react';
 import SejaContratado from './SejaContratado';
+import { ContaContext } from '../context/ContaContext';
 
 // URL base da sua API Flask
 const API_URL = 'http://127.0.0.1:5000';
@@ -11,7 +12,7 @@ const AUTH_TOKEN_KEY = 'authToken';
 const USER_ADDRESS_KEY = 'userAddress';
 
 function Navbar() {
-  const [contaConectada, setContaConectada] = useState(null); // Armazena o endereço da conta
+  const [contaConectada, setContaConectada] = useContext(ContaContext); // Armazena o endereço da conta
   const [overlay, setOverlay] = useState(false);
   const [mostrarPopup, setMostrarPopup] = useState(false);
   const [estaAutenticando, setEstaAutenticando] = useState(false); // Durante o processo de clique no botão
@@ -108,6 +109,7 @@ function Navbar() {
     setErroAuth(null);
     console.log('Desconectado localmente. Token e endereço removidos.');
   };
+
 
   // useEffect para restaurar estado do localStorage e ouvir mudanças de conta
   useEffect(() => {

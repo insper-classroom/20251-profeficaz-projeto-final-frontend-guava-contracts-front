@@ -18,11 +18,22 @@ function Categoria () {
 
 
   useEffect(() => {
+    axios.get(`http://127.0.0.1:5000/servico/categoria/${id}`)
+      .then((response) => {
+        
+        setServicos(response.data)
+        console.log("categoria", response.data)
+      })
+      .catch((error) => console.error("erro ao buscar categorias", error))
+  }, [])
+
+
+  useEffect(() => {
     axios.get(`http://127.0.0.1:5000/categoria/${id}`)
       .then((response) => {
-        console.log(response.data)
-        setServicos(response.data.servicos)
+
         setNomeCategoria(response.data.Name)
+        console.log("categoria", response.data.Name)
       })
       .catch((error) => console.error("erro ao buscar categorias", error))
   }, [])
@@ -39,18 +50,18 @@ function Categoria () {
               Nome
             </li>
             <li className='list_title'>
-              Tempo de atuação
+              
             </li>
             <li className='list_title'>
-              Avaliação
+              Tags
             </li>
           </ul>
-          {rows.map(servico => (
-            <ul className='body_lista' key={servico.address}>
+          {servicos.map((servico, index) => (
+            <ul className='body_lista' key={servico.address || index}>
               <a href={`/perfil/${servico.address}`} className='row_lista'>
                 <div className='row_div'>
                   <li className='list_item'>
-                    {servico.nome}
+                    {servico.title}
                   </li>
 
                   <li className='list_item'>
@@ -58,12 +69,10 @@ function Categoria () {
                   </li>
 
                   <li className='list_item'>
-                    {servico.avaliacao}
+                    {servico.tags && servico.tags.slice(0, 3).join(', ')}
                   </li>
 
                 </div>
-
-
               </a>
             </ul>
           ))}
