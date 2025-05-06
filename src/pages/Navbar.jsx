@@ -2,23 +2,30 @@ import { useState, useEffect } from 'react';
 import '../styles/Navbar.css';
 import React from 'react';
 import SejaContratado from './SejaContratado';
+// Opcional: import { jwtDecode } from "jwt-decode"; // Se quiser verificar expiração no front
+
+// URL base da sua API Flask
+const API_URL = 'http://127.0.0.1:5000';
+
+// Chaves para localStorage
+const AUTH_TOKEN_KEY = 'authToken';
+const USER_ADDRESS_KEY = 'userAddress';
 
 function Navbar() {
-  const [contaConectada, setContaConectada] = useState(null);
-  const [showForm, setShowForm] = useState(false); 
+  const [contaConectada, setContaConectada] = useState(null); // Armazena o endereço da conta
   const [overlay, setOverlay] = useState(false);
   const [mostrarPopup, setMostrarPopup] = useState(false);
-  const [estaAutenticando, setEstaAutenticando] = useState(false);
+  const [estaAutenticando, setEstaAutenticando] = useState(false); // Durante o processo de clique no botão
+  const [erroAuth, setErroAuth] = useState(null);
 
   const toggleOverlay = () => {
     setOverlay(!overlay);
+    setErroAuth(null);
   };
 
   const getLinkMetamask = () => {
     return "https://metamask.io/download/";
   };
-
-  // const handleOpenForm = () => setShowForm(true);
 
   // Função para conectar, solicitar assinatura e autenticar
   const conectarEAutenticarCarteira = async () => {
@@ -28,77 +35,107 @@ function Navbar() {
     }
 
     setEstaAutenticando(true);
+    setErroAuth(null);
     console.log('MetaMask está instalada! Iniciando conexão e autenticação...');
 
     try {
-      // 1. Solicitar permissões explicitamente
       await window.ethereum.request({
           method: 'wallet_requestPermissions',
           params: [{ eth_accounts: {} }]
       });
-
-      // 2. Obter as contas após a permissão ser concedida
       const contas = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      const conta = contas[0];
+      const conta = contas[0]; // Endereço obtido da MetaMask
       console.log('Conta obtida:', conta);
 
-      // --- Início da Etapa de Assinatura ---
+      const nonceResponse = await fetch(`${API_URL}/nonce/${conta}`);
+      if (!nonceResponse.ok) {
+        const errorData = await nonceResponse.json();
+        throw new Error(errorData.error || 'Falha ao obter nonce do servidor.');
+      }
+      const { nonce } = await nonceResponse.json();
+      console.log('Nonce recebido do backend:', nonce);
 
-      // 3. Gerar desafio (Nonce) - Idealmente, obter do backend.
-      //    NÃO USE NONCE GERADO NO CLIENTE EM PRODUÇÃO.
-      const nonce = Math.floor(Math.random() * 1000000).toString();
       const mensagem = `Por favor, assine esta mensagem para provar que você controla esta carteira.\n\nNonce: ${nonce}`;
       console.log('Solicitando assinatura para a mensagem:', mensagem);
-
-      // 4. Solicitar assinatura via MetaMask
       const assinatura = await window.ethereum.request({
         method: 'personal_sign',
         params: [mensagem, conta],
       });
       console.log('Assinatura recebida:', assinatura);
 
-      // --- Fim da Etapa de Assinatura ---
+      const verifyResponse = await fetch(`${API_URL}/verificar`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ address: conta, message: mensagem, signature: assinatura }),
+      });
 
-      // 5. ENVIAR PARA O BACKEND PARA VERIFICAÇÃO
-      //    Aqui você enviaria `conta`, `mensagem` e `assinatura` para seu servidor.
-      //    O servidor usaria `ethers.utils.verifyMessage(mensagem, assinatura)`
-      //    e validaria o nonce.
-      console.log('Enviando para o backend (simulado):', { conta, mensagem, assinatura });
-      // const respostaBackend = await fetch('/api/autenticar', { /* ... */ });
-      // if (!respostaBackend.ok) throw new Error('Falha na verificação do backend');
-      // const dadosSessao = await respostaBackend.json();
+      if (!verifyResponse.ok) {
+        const errorData = await verifyResponse.json();
+        throw new Error(errorData.error || 'Falha na verificação da assinatura pelo servidor.');
+      }
 
-      // 6. Se a verificação no backend for bem-sucedida:
-      console.log('Autenticação (simulada) bem-sucedida!');
-      setContaConectada(conta); // Define a conta como conectada/autenticada
+      const { token } = await verifyResponse.json();
+      console.log('Autenticação bem-sucedida! Token recebido.');
+
+      // Armazenar Token E Endereço no localStorage
+      localStorage.setItem(AUTH_TOKEN_KEY, token);
+      localStorage.setItem(USER_ADDRESS_KEY, conta); // Salva o endereço
+      setContaConectada(conta); // Define a conta imediatamente após login bem-sucedido
 
     } catch (error) {
+      console.error('Erro durante autenticação:', error);
+      setErroAuth(error.message || 'Ocorreu um erro.');
+      setContaConectada(null);
+
+      // Limpa ambos os itens do localStorage em caso de erro
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+      localStorage.removeItem(USER_ADDRESS_KEY);
       if (error.code === 4001) {
-        console.log('Usuário rejeitou a solicitação.');
-      } else {
-        console.error('Erro durante conexão ou assinatura:', error);
+        setErroAuth('Você rejeitou a solicitação na MetaMask.');
       }
-      setContaConectada(null); // Garante estado desconectado em caso de erro
     } finally {
-      setEstaAutenticando(false); // Termina feedback de autenticação
+      setEstaAutenticando(false);
     }
   };
 
-  // Função para desconectar (limpa o estado local)
+  // Função para desconectar
   const desconectarCarteira = () => {
     setContaConectada(null);
-    console.log('Desconectado localmente.');
-    // Considerar invalidar token de sessão no backend aqui
+    // Limpa ambos os itens do localStorage
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    localStorage.removeItem(USER_ADDRESS_KEY);
+    setErroAuth(null);
+    console.log('Desconectado localmente. Token e endereço removidos.');
   };
 
-  // useEffect para ouvir mudanças de conta
+  // useEffect para restaurar estado do localStorage e ouvir mudanças de conta
   useEffect(() => {
+    const storedToken = localStorage.getItem(AUTH_TOKEN_KEY);
+    const storedAddress = localStorage.getItem(USER_ADDRESS_KEY);
+
+    // Se ambos existirem, restaura o estado
+    if (storedToken && storedAddress) {
+      console.log('Sessão restaurada do localStorage para:', storedAddress);
+      setContaConectada(storedAddress);
+    } else {
+      console.log('Nenhuma sessão encontrada no localStorage.');
+      // Garante que se um item existir mas o outro não, ambos sejam limpos
+      if (storedToken || storedAddress) {
+          desconectarCarteira();
+      }
+    }
+
+    // Listener para mudanças de conta na MetaMask
     const handleAccountsChanged = (contas) => {
       console.log('Mudança de conta detectada pela MetaMask:', contas);
-      // Se a conta mudar ou desconectar na MetaMask, força desconexão local
-      if (contas.length === 0 || (contaConectada && contas[0].toLowerCase() !== contaConectada.toLowerCase())) {
+      const currentStoredAddress = localStorage.getItem(USER_ADDRESS_KEY); // Pega o endereço que deveria estar logado
+
+      // Se tínhamos um endereço armazenado e não há mais contas OU a conta ativa mudou
+      if (currentStoredAddress && (contas.length === 0 || contas[0].toLowerCase() !== currentStoredAddress.toLowerCase())) {
         console.log('Forçando desconexão local devido à mudança na MetaMask.');
-        setContaConectada(null);
+        desconectarCarteira();
       }
     };
 
@@ -111,9 +148,12 @@ function Navbar() {
         window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
       }
     };
-  }, [contaConectada]); // Dependência para comparar com a conta atual
+    // Não precisa mais de dependências aqui, pois a lógica de restauração é feita uma vez no mount
+    // e o handleAccountsChanged usa o valor atual do localStorage.
+  }, []);
 
   const formatarEndereco = (endereco) => {
+    // Formata o endereço do estado contaConectada
     if (!endereco) return "Conectar";
     return `${endereco.substring(0, 6)}...${endereco.substring(endereco.length - 4)}`;
   };
@@ -135,15 +175,19 @@ function Navbar() {
             <a href="/categorias" className="contrate"> Contrate</a>
           </li>
           <li className="wallet-controls">
-            {/* Botão principal: Conectar/Autenticar ou Mostrar Endereço */}
+             {erroAuth && <span className="auth-error" style={{color: 'red', marginRight: '10px'}}>{erroAuth}</span>}
+
+            {/* Botão principal: Conectar ou Mostrar Endereço */}
+            {/* A renderização agora depende diretamente do estado contaConectada */}
             <button
-              onClick={contaConectada ? undefined : conectarEAutenticarCarteira} // Chama a nova função
-              className="nome-usuario-nav" // Mantida classe original
-              disabled={estaAutenticando || !!contaConectada} // Desabilita durante autenticação ou se já conectado
+              onClick={contaConectada ? undefined : conectarEAutenticarCarteira}
+              className="nome-usuario-nav"
+              disabled={estaAutenticando || !!contaConectada} // Desabilita se autenticando ou se já conectado
             >
               {estaAutenticando ? 'Autenticando...' : formatarEndereco(contaConectada)}
             </button>
-            {/* Botão Sair (Desconectar) e Link Meu Perfil */}
+
+            {/* Botão Sair e Link Meu Perfil (mostra apenas se conectado) */}
             {contaConectada && !estaAutenticando && (
               <>
                 <button onClick={desconectarCarteira} className="desconectar">
@@ -157,8 +201,10 @@ function Navbar() {
           </li>
         </ul>
       </nav>
+      {/* Popup para MetaMask não detectada */}
       {mostrarPopup && (
         <div className="metamask-popup-overlay">
+          {/* ... (código do popup) ... */}
           <div className="metamask-popup">
             <h2>MetaMask não detectada</h2>
             <p>Para conectar sua carteira, instale a extensão MetaMask.</p>
@@ -171,7 +217,7 @@ function Navbar() {
             <br />
             <button
               className="close-btn"
-              onClick={() => setMostrarPopup(false)}
+              onClick={() => { setMostrarPopup(false); setErroAuth(null); }}
             >
               Fechar
             </button>
