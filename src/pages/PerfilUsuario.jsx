@@ -1,18 +1,55 @@
-import Navbar from './Navbar'
-import '../styles/PerfilUsuario.css'
-import Avaliacao from '../components/Avaliacao.jsx'
-import { useState } from 'react'
+import React, { useContext, useEffect } from 'react';
+import Navbar from './Navbar';
+import '../styles/PerfilUsuario.css';
+import Avaliacao from '../components/Avaliacao.jsx';
+import { ContaContext } from '../context/ContaContext';
+import { useState } from 'react';
+import axios from 'axios';
 
 function PerfilUsuario() {
-  
+  const { contaConectada } = useContext(ContaContext);
   const [overlayUsuario, setOverlayUsuario] = useState(false)
   const [addressContrato, setAddressContrato] = useState('')
   const [addressFreela, setAddressFreela] = useState('')
   const [addressCliente, setAddressCliente] = useState('')
+  const [contratos, setContratos] = useState([])
+  const [createdAt, setCreatedAt] = useState('')
 
   const toggleOverlayUsuario = () => {
     setOverlayUsuario(!overlayUsuario)
   }
+
+  const formatarEndereco = (endereco) => {
+    if (!endereco) return '';
+    return `${endereco.slice(0, 6)}...${endereco.slice(-4)}`;
+  }
+
+
+  // conseguir o endereco do cara
+  // pegar o perfil dele no backend
+  // e buscar os contratos dele no backend
+  useEffect(() => {
+    axios.get(`/contratos/usuario/${contaConectada}`)
+    .then((response) => {
+      console.log("contratos do usuario", response.data.dados)
+      setContratos(response.data)
+    })
+    .catch((error) => console.error("erro ao buscar contratos do usuario", error))
+  }, [contaConectada])
+
+
+  // pegando os dados do usuario
+
+  useEffect(() => {
+    axios.get(`/usuario/${contaConectada}`)
+    .then((response) => {
+      console.log("dados do usuario", response.data)
+      setCreatedAt(response.data.created_at)
+    })
+    .catch((error) => console.error("erro ao buscar dados do usuario", error))
+  }, [contaConectada])
+
+
 
   const perfil = {
     "nome": "Pedro",
@@ -138,7 +175,7 @@ function PerfilUsuario() {
           </div>
 
           <div className="detalhes_perfil">
-            <p id="nome" className="desc_perfil">{perfil.nome}</p>
+            <p id="nome" className="desc_perfil">{formatarEndereco(contaConectada)}</p>
             <p id="descricao" className="desc_perfil">{perfil.profissao}</p>
             <p id="descricao" className="desc_perfil">Tempo de atuação: {perfil.tempo_atuacao}</p>
             <p id="descricao" className="desc_perfil">Descrição: {perfil.descricao}</p>
@@ -173,4 +210,4 @@ function PerfilUsuario() {
   )
 }
 
-export default PerfilUsuario
+export default PerfilUsuario;

@@ -1,10 +1,11 @@
-  import { useState, useEffect } from 'react';
-  import '../styles/Navbar.css';
-  import React from 'react';
-  import SejaContratado from './SejaContratado';
+import { useState, useEffect, useContext } from 'react';
+import '../styles/Navbar.css';
+import React from 'react';
+import SejaContratado from './SejaContratado';
+import { ContaContext } from '../context/ContaContext';
 
 function Navbar() {
-  const [contaConectada, setContaConectada] = useState(null);
+  const { contaConectada, setContaConectada } = useContext(ContaContext);
   const [showForm, setShowForm] = useState(false);
   const [overlay, setOverlay] = useState(false)
   const [mostrarPopup, setMostrarPopup] = useState(false)
@@ -34,6 +35,7 @@ function Navbar() {
         const conta = contas[0];
         
         setContaConectada(conta);
+        console.log('Conta conectada:', conta);
       } catch (error) {
         
         if (error.code === 4001) {
@@ -47,10 +49,9 @@ function Navbar() {
     }
   };
 
-  // Função para desconectar (limpa o estado local)
+  // Função para desconectar (limpa o estado global)
   const desconectarCarteira = () => {
-    setContaConectada(null);
-    
+    setContaConectada(''); // Limpa o estado global
   };
 
 
@@ -78,7 +79,7 @@ function Navbar() {
   }, []);
 
   const formatarEndereco = (endereco) => {
-    if (!endereco) return "Conectar";
+    if (!endereco) return "Conectar Carteira";
     return `${endereco.substring(0, 6)}...${endereco.substring(endereco.length - 4)}`;
   };
 
