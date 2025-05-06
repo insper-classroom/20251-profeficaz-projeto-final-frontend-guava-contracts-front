@@ -84,28 +84,72 @@ function ServicoPerfil({servico_id}) {
     const fetchServico = async () => {
       try {
         const response = await axios.get(`http://127.0.0.1:5000/servico/${servico_id}`);
-        console.log(response.data)
+        console.log('Resposta da API de serviço:', response.data);
         setServico(response.data);
       } catch (error) {
         console.error('Erro ao buscar o serviço:', error);
       }
     };
-
+  
     fetchServico();
   }, [servico_id]);
 
-  const handleAssinarContrato = () => {
+  const handleAssinarContrato = async () => {
     if (!aceitarTermos) {
       alert('Você precisa aceitar os termos e condições para assinar o contrato');
       return;
     }
-    setShowContrato(false);
-    setShowSucesso(true);
-    
-    setTimeout(() => {
-      setShowSucesso(false);
-      navigate('/');
-    }, 3000);
+  
+    if (!servico) {
+      alert('Dados do serviço não disponíveis');
+      return;
+    }
+  
+    try {
+      // Log para debug dos dados do serviço
+      console.log('Dados completos do serviço:', servico);
+  
+      // Verifica se temos o ID do freelancer nos dados do serviço
+      const freelancerId = servico._id || servico.id || servico.freelancer_id || servico.usuario_id;
+      
+      if (!freelancerId) {
+        throw new Error('ID do freelancer não encontrado nos dados do serviço');
+      }
+  
+      const dadosContrato = {
+        id_freela: freelancerId,
+        id_contratante: "0x123...", // Endereço do contratante (você precisa ter isso disponível)
+        valor: servico.valor || 2000.00, // Usa o valor do serviço ou um valor padrão
+        servico: servico.desc || servico.descricao || 'Serviço não especificado'
+      };
+  
+      // Log dos dados antes do envio
+      console.log('Dados do contrato a serem enviados:', dadosContrato);
+  
+      const response = await axios.post('http://127.0.0.1:5000/contrato', dadosContrato, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      console.log('Resposta do backend:', response.data);
+  
+      if (response.data.transaction) {
+        console.log('Transação preparada:', response.data.transaction);
+        setShowContrato(false);
+        setShowSucesso(true);
+        
+        setTimeout(() => {
+          setShowSucesso(false);
+          navigate('/');
+        }, 3000);
+      }
+  
+    } catch (error) {
+      console.error('Erro detalhado:', error);
+      const mensagemErro = error.response?.data?.error || error.message;
+      alert(`Erro ao criar contrato: ${mensagemErro}`);
+    }
   };
 
   return (
