@@ -12,7 +12,7 @@ function Categoria () {
   const [nomeCategoria, setNomeCategoria] = useState('');
   const {id} = useParams()
   const rows = [
-    {"address": "askdjhf1239841epkl@#P$#" ,"nome": "Bolivia", "tempoDeAtuacao": "2 anos", "avaliacao": 4.5},
+    {"address": "6809410ee314814015b7f9ca" ,"nome": "Bolivia", "tempoDeAtuacao": "2 anos", "avaliacao": 4.5},
     {"address": "askdjhf1239841epkl@#P$@" ,"nome": "Nadottins", "tempoDeAtuacao": "500 anos", "avaliacao": 25}
   ]
 
