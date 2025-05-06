@@ -39,9 +39,85 @@
   border-style: none;
   height: 30%;
   border-radius: 15px;
-  background: #5700C9;
-  background: linear-gradient(90deg, rgba(87, 0, 201, 1) 0%, rgba(189, 138, 255, 1) 100%);
+  background: linear-gradient(90deg, #6e2feb, #a74cf2);
   font-size: 1.1rem;
   font-weight: 700;
   color: white;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.botao_visualizar_contrato:hover {
+  width: 90%;
+  border-style: none;
+  height: 30%;
+  border-radius: 15px;
+  background: linear-gradient(90deg, #6e2feb, #a74cf2);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: white;
+  border-radius: 8px;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(87, 0, 201, 0.2);
+}
+
+.container_titulo_portifolio {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  border-bottom: 2px solid #BEBEBE;
+}
+
+.titulo_portifolio {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #404040;
+  margin: 2% 0;
+}
+
+.overlay-perfil {
+  background: rgba(49,49,49,0.8);
+}
+
+.modal-content-perfil {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  height: auto;
+}
+
+.container_botoes_contrato {
+  margin: 5% 0;
+  gap: 3%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.botao_opcao_contrato {
+  width: 100%;
+  border-style: none;
+  height: 4rem;
+  border-radius: 15px;
+  background: #5700C9;
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.botao_opcao_contrato:hover {
+  background: #4600a3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(87, 0, 201, 0.2);
+}
+
+.container_descricao_contrato {
+  margin: 4% 0;
 }
