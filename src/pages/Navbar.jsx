@@ -12,7 +12,7 @@ const AUTH_TOKEN_KEY = 'authToken';
 const USER_ADDRESS_KEY = 'userAddress';
 
 function Navbar() {
-  const [contaConectada, setContaConectada] = useContext(ContaContext); // Armazena o endereço da conta
+  const {contaConectada, setContaConectada} = useContext(ContaContext); // Armazena o endereço da conta
   const [overlay, setOverlay] = useState(false);
   const [mostrarPopup, setMostrarPopup] = useState(false);
   const [estaAutenticando, setEstaAutenticando] = useState(false); // Durante o processo de clique no botão
