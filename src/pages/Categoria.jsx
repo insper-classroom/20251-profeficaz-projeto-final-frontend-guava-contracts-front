@@ -20,9 +20,9 @@ function Categoria () {
   useEffect(() => {
     axios.get(`http://127.0.0.1:5000/categoria/${id}`)
       .then((response) => {
-        console.log(response.data)
-        setServicos(response.data.servicos)
-        setNomeCategoria(response.data.Name)
+
+        setNomeCategoria(response.data.nome)
+        console.log("categoria", response.data.nome)
       })
       .catch((error) => console.error("erro ao buscar categorias", error))
   }, [])
