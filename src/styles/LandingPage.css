@@ -4,58 +4,228 @@
   box-sizing: border-box;
 }
 
+/* Estilos Gerais */
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+}
 
 .container {
-  width: 100%;
-  height: 100vh;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
 }
 
-.pesquisa_apresentacao {
-  display: flex;
-  flex-direction: row;
-  margin: 4%;
-  height:40vh
+/* Estilos da NavBar */
+.navbar {
+  background-color: #36227F; /* Cor do seu CSS antigo */
+  padding: 1rem;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.pesquisa {
-  border-right: 2px solid rgba(194, 194, 194, 1);
-  width: 50%;
+.navbar-container {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
 }
 
-.espaco_pesquisa {
-  border-radius: 10px;
-  width: 80%;
-  background: #36227F;
-  background: linear-gradient(180deg, rgba(54, 34, 127, 1) 0%, rgba(142, 60, 229, 1) 100%);
-  height: 80%;
-}
-
-.barra_pesquisa {
-  padding: 6%;
-  width: 80%;
-}
-
-.input_pesquisa {
-  height: 50px;
-  width: 100%;
-  border-style: none;
-  border-radius: 13px;
-  padding: 5%;
-  font-size: 16px;
-}
-
-.apresentacao {
-  text-align: end;
-  margin-left: 10%;
-  width: 40%;
-  font-size: 52px;
+.navbar-title {
+  font-size: 1.5rem;
   font-weight: bold;
 }
 
-.texto_apresentacao {
-  padding-top: 10%;
+.navbar-links .navbar-link {
+  margin-left: 0.5rem;
+  color: white;
+  text-decoration: none;
 }
 
+.navbar-links .navbar-link:hover {
+  text-decoration: underline;
+}
+
+/* Seção Hero/Apresentação */
+.hero-section {
+  background: linear-gradient(180deg, rgba(54, 34, 127, 1) 0%, rgba(142, 60, 229, 1) 100%); /* Gradiente do seu CSS antigo */
+  color: white;
+  padding: 5rem 0;
+  text-align: center;
+}
+
+.hero-title {
+  font-size: 52px; /* Tamanho da fonte do seu CSS antigo */
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.search-form {
+  max-width: 40rem;
+  margin: 0 auto;
+  display: flex;
+}
+
+.search-input {
+  flex-grow: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem 0 0 0.5rem;
+  border: none;
+  outline: none;
+  color: #1f2937;
+  font-size: 16px; /* Tamanho da fonte do seu CSS antigo */
+}
+
+.search-button {
+  background-color: #FFD700; /* Cor alterada para melhor contraste */
+  color: #36227F; /* Cor do texto alterada */
+  padding: 0.75rem 1.5rem;
+  border-radius: 0 0.5rem 0.5rem 0;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.search-button:hover {
+  background-color: #FFC400; /* Cor alterada para melhor contraste */
+}
+
+/* Seção de Categorias */
+.categorias-section {
+  padding: 3rem 0;
+  background-color: #f3f4f6;
+}
+
+.categorias-container {
+  text-align: center;
+}
+
+.categorias-title {
+  font-size: 1.875rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+}
+
+.categorias-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.categoria-item {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Seção Como Funciona */
+.how-it-works-section {
+  padding: 4rem 0;
+  background-color: white;
+}
+
+.how-it-works-title {
+  font-size: 1.875rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.how-it-works-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.how-it-works-item {
+  text-align: center;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.how-it-works-icon {
+  font-size: 2.5rem;
+  color: #3b82f6;
+  margin-bottom: 1rem;
+}
+
+.how-it-works-item h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.how-it-works-item p {
+  color: #374151;
+}
+
+/* Seção Chamada para Ação */
+.join-section {
+  background-color: #36227F;
+  color: white;
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.join-title {
+  font-size: 1.875rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+.join-subtitle {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.join-button {
+  background-color: white;
+  color: #36227F; /* Cor do texto alterada */
+  font-weight: 600;
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.join-button:hover {
+  background-color: #e5e7eb;
+  color: #4a2ea2; /* Cor do texto alterada no hover */
+}
+
+/* Rodapé */
+.footer {
+  background-color: #1f2937;
+  color: white;
+  padding: 2rem 0;
+  text-align: center;
+}
+
+/* Media Queries para Responsividade */
+@media (min-width: 768px) {
+  .navbar-title {
+    font-size: 2rem;
+  }
+
+  .hero-title {
+    font-size: 3rem; /* Mantido, mas o 52px do CSS antigo pode ser maior dependendo da tela */
+  }
+
+  .categorias-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .how-it-works-grid {
+     grid-template-columns: repeat(3, 1fr);
+  }
+}

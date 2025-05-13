@@ -1,177 +1,188 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kanit:wght@600&display=swap');
-* {
-  padding: 0px;
-  margin: 0px;
-  box-sizing: border-box;
-  font-family: "Inter", arial;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kanit:wght@600;700&display=swap');
 
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  /* A fonte principal será definida pelo LandingPage.css ou body, mas Inter pode ser usada como fallback */
+  font-family: "Inter", Arial, sans-serif; 
+}
 
 nav {
   display: flex;
   width: 100%;
-  height: 10vh;
   flex-direction: row;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(194, 194, 194, 1);
+  align-items: center; /* Alinha itens verticalmente */
+  background-color: #36227F; /* Cor de fundo da LandingPage.css */
+  padding: 1rem 2rem; /* Padding horizontal aumentado para mais espaço */
+  color: white; 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra da LandingPage.css */
+  position: sticky; /* Faz a navbar ficar no topo ao rolar */
+  top: 0;
+  z-index: 100; /* Garante que a navbar fique sobre outros elementos */
 }
-
-.Nav-Items {
-  padding-top: 3.5vh;
-  display: flex;
-  list-style: none;
-  gap: 10px;
-  width: 50%;
-  flex-direction: row;
-  justify-content: space-around;
-}
-
 
 .Titulo {
-  padding: 2vh;
-  font-size: 36px;
-}
-
-
-.conectar {
-  background: #36227F;
-  background: linear-gradient(90deg, rgba(54, 34, 127, 1) 0%, rgba(142, 60, 229, 1) 100%);
-  padding: 6px 14px;
-  text-decoration: none;
-  border-radius: 25px;
-  font-weight: bold;
-  color: #fff;
-  border: none;
-  transition: box-shadow 0.21s ease;
-  box-shadow: none;
-}
-
-.conectar:hover {
-  background: #36227F;
-  background: linear-gradient(90deg, rgba(54, 34, 127, 1) 0%, rgba(142, 60, 229, 1) 100%);
-  padding: 6px 14px;
-  text-decoration: none;
-  border-radius: 25px;
-  font-weight: bold;
-  color: #fff;
-  border: none;
-  box-shadow: 1px 2px 5px grey;
-   
-}
-
-a {
-  text-decoration: none;
-}
-
-
-.contrate, .seja-contratado {
-  color: black;
+  padding: 0; /* Removido padding extra, o padding do nav é suficiente */
 }
 
 #guava {
-  font-weight: bold;
-  background: linear-gradient(90deg, rgba(87, 0, 201, 1) 0%, rgba(189, 138, 255, 1) 100%);
-  -webkit-background-clip: text;
+  font-family: "Kanit", sans-serif; /* Fonte específica para o logo */
+  font-weight: 700; /* Mais peso para o logo */
+  font-size: 2rem; /* Tamanho do logo aumentado */
+  background: linear-gradient(90deg, #e0c3ff 0%, #ffffff 100%); /* Gradiente mais sutil e claro */
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+  text-decoration: none;
 }
 
+.Nav-Items {
+  display: flex;
+  list-style: none;
+  gap: 1.5rem;
+  align-items: center;
+  margin-left: auto;
+}
+
+.Nav-Items li a, .Nav-Items li button {
+  text-decoration: none;
+  color: white;
+  font-weight: 500;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.Nav-Items li a:hover, .Nav-Items li button:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* Destaque sutil no hover */
+}
+
+.wallet-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* Espaçamento dentro dos controles da carteira */
+}
+
+.conectar, .desconectar, .nome-usuario-nav, .link-perfil-usuario {
+  background: linear-gradient(90deg, rgba(142, 60, 229, 1) 0%, rgba(100, 40, 200, 1) 100%); /* Gradiente roxo mais vibrante */
+  border: none;
+  color: white;
+  font-weight: 600; /* Texto em negrito */
+  padding: 0.6rem 1.2rem; /* Padding generoso */
+  border-radius: 25px; /* Botões bem arredondados */
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+.conectar:hover, .desconectar:hover, .nome-usuario-nav:hover, .link-perfil-usuario:hover {
+  background: linear-gradient(90deg, rgba(160, 80, 240, 1) 0%, rgba(120, 60, 220, 1) 100%); /* Gradiente mais claro no hover */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  transform: translateY(-1px); /* Leve elevação */
+}
+
+.nome-usuario-nav[disabled] {
+  background: #5a4a9a; /* Cor para botão desabilitado */
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.nome-usuario-nav[disabled]:hover {
+  background: #5a4a9a; /* Mantém a cor no hover quando desabilitado */
+}
+
+
+.auth-error {
+  color: #ffd1d1; /* Cor de erro mais suave para fundo escuro */
+  font-size: 0.8rem;
+  margin-right: 0.5rem; /* Ajuste de margem */
+}
+
+/* Estilos para o Popup MetaMask */
 .metamask-popup-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.65); /* Overlay um pouco mais escuro */
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 1001; /* Acima da navbar */
 }
 
 .metamask-popup {
-  background: #fff;
-  padding: 30px 40px;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  background: #ffffff; /* Fundo branco para o popup */
+  padding: 2.5rem; /* Padding aumentado */
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
   text-align: center;
-  animation: popupFadeIn 0.3s ease-in-out;
-  max-width: 400px;
+  animation: popupFadeIn 0.3s ease-out;
+  max-width: 420px;
   width: 90%;
+  color: #333; /* Cor de texto padrão para o popup */
 }
 
 .metamask-popup h2 {
-  margin-bottom: 10px;
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: #111;
+  margin-bottom: 1rem;
+  font-size: 1.75rem; /* Tamanho do título aumentado */
+  font-weight: 700; /* Kanit para o título do popup também, se desejar */
+  font-family: "Kanit", sans-serif;
+  color: #36227F; /* Roxo para o título do popup */
 }
 
 .metamask-popup p {
   font-size: 1rem;
   color: #555;
-  margin-bottom: 20px;
+  margin-bottom: 1.8rem; /* Mais espaço antes dos botões */
+  line-height: 1.6;
 }
 
 .metamask-popup button {
   font-size: 1rem;
-  padding: 10px 24px;
+  padding: 0.75rem 1.5rem; /* Padding dos botões do popup */
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  width: 100%; /* Botões ocupam largura total */
+  margin-bottom: 0.75rem; /* Espaço entre botões */
+}
+
+.metamask-popup button:last-child {
+  margin-bottom: 0;
 }
 
 .metamask-popup .install-btn {
-  background: linear-gradient(90deg, #6e2feb, #a74cf2);
+  background: linear-gradient(90deg, #5D3FD3, #8E44AD); /* Gradiente roxo para o botão principal */
   color: white;
-  font-weight: 500;
 }
 
 .metamask-popup .install-btn:hover {
   opacity: 0.9;
+  box-shadow: 0 2px 10px rgba(93, 63, 211, 0.4);
 }
 
 .metamask-popup .close-btn {
-  background: none;
-  color: #333;
-  text-decoration: underline;
+  background: #e9ecef; /* Fundo cinza claro para o botão de fechar */
+  color: #495057; /* Cor de texto mais escura */
+}
+
+.metamask-popup .close-btn:hover {
+  background: #dee2e6;
 }
 
 @keyframes popupFadeIn {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: scale(0.95) translateY(-10px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: scale(1) translateY(0);
   }
 }
-
-.desconectar, .nome-usuario-nav, .link-perfil-usuario {
-  background-color:#36227F ;
-  background: linear-gradient(90deg, #6e2feb, #a74cf2);
-  padding: 6px 14px;
-  border: none;
-  border-radius: 7px;
-  color: white;
-  font-size: 14px;
-  font-weight: bold;
-  margin-left: 10px;
-  transition: box-shadow 0.21s ease;
-}
-
-
-.desconectar:hover, .nome-usuario-nav:hover, .link-perfil-usuario:hover {
-  background-color:#36227F ;
-  background: linear-gradient(90deg, #6e2feb, #a74cf2);
-  padding: 6px 14px;
-  border: none;
-  font-size: 14px;
-  border-radius: 7px;
-  color: white;
-  font-weight: bold;
-  margin-left: 10px;
-  box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, .5);
-}
-
