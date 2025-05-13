@@ -80,22 +80,140 @@
   background: rgba(49,49,49,0.8);
 }
 
+.detalhes_perfil .edit-profile-button,
+.detalhes_perfil .save-profile-button,
+.detalhes_perfil .cancel-edit-button {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  margin-top: 1rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  text-align: center;
+}
+
+.detalhes_perfil .edit-profile-button {
+  background-color: #6e2feb; /* Cor primária */
+  color: white;
+}
+.detalhes_perfil .edit-profile-button:hover {
+  background-color: #5a1fcf;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.edit-profile-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.edit-profile-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.edit-profile-form label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.edit-profile-form input[type="text"],
+.edit-profile-form textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+.edit-profile-form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.edit-profile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.detalhes_perfil .save-profile-button {
+  background-color: #28a745; /* Verde para salvar */
+  color: white;
+}
+.detalhes_perfil .save-profile-button:hover {
+  background-color: #218838;
+}
+.detalhes_perfil .save-profile-button:disabled {
+  background-color: #a3d8b0;
+  cursor: not-allowed;
+}
+
+.detalhes_perfil .cancel-edit-button {
+  background-color: #6c757d; /* Cinza para cancelar */
+  color: white;
+}
+.detalhes_perfil .cancel-edit-button:hover {
+  background-color: #5a6268;
+}
+.detalhes_perfil .cancel-edit-button:disabled {
+  background-color: #b0b6bb;
+  cursor: not-allowed;
+}
+
+.edit-error-message {
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
 .modal-content-perfil {
   background: white;
-  padding: 2rem;
+  padding: 1.5rem;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
-  width: 50%;
+  width: 90%;
+  max-width: 500px;
   height: auto;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.modal-content-perfil h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.container_descricao_contrato {
+  margin: 1rem 0;
+  padding: 0.75rem;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  border: 1px solid #eee;
+}
+
+.container_descricao_contrato p {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
 }
 
 .container_botoes_contrato {
-  margin: 5% 0;
-  gap: 3%;
+  margin: 1rem 0;
+  gap: 0.75rem;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   width: 100%;
 }
 
@@ -116,6 +234,35 @@
   background: #4600a3;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(87, 0, 201, 0.2);
+}
+
+.botao_cancelar_contrato_modal {
+  background: #dc3545;
+}
+.botao_cancelar_contrato_modal:hover {
+  background: #c82333;
+}
+
+.botao_fechar_modal_perfil {
+  margin-top: 1rem;
+  padding: 0.8rem 1.5rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+  width: 100%; 
+}
+.botao_fechar_modal_perfil:hover {
+  background-color: #5a6268;
+}
+
+.desc_contrato_item {
+  font-size: 0.9rem;
+  color: #555;
+  margin-top: 0.25rem;
 }
 
 .container_descricao_contrato {
