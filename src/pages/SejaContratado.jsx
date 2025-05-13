@@ -24,7 +24,7 @@ function SejaContratado({ state, onClose }) {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:5173/servico', {servico, categoria, valor});
+      const response = await axios.post('http://localhost:5000/servico', {servico, categoria, valor});
 
       console.log("enviado com sucesso", response.data)
     } catch (error){
