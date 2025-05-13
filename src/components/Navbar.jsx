@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import '../styles/Navbar.css';
 import React from 'react';
-import SejaContratado from './SejaContratado';
+import SejaContratado from '../pages/SejaContratado';
 import { ContaContext } from '../context/ContaContext';
 
 // URL base da sua API Flask
