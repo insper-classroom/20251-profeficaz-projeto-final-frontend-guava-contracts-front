@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import Navbar from './Navbar';
+import Navbar from '../components/Navbar.jsx';
 import '../styles/PerfilUsuario.css';
 import Avaliacao from '../components/Avaliacao.jsx';
 import { ContaContext } from '../context/ContaContext';

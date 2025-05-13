@@ -1,5 +1,5 @@
 import '../styles/PaginaPerfil.css'
-import Navbar from './Navbar';
+import Navbar from '../components/Navbar.jsx';
 import Avaliacao from '../components/Avaliacao.jsx'
 import ServicoPerfil from './ServicoPerfil.jsx';
 import { useParams } from 'react-router-dom';
