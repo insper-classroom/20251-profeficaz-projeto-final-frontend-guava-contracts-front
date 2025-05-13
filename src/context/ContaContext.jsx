@@ -3,7 +3,7 @@ import React, { createContext, useState, useEffect } from 'react';
 export const ContaContext = createContext();
 
 // URL base da sua API Flask
-const API_URL = 'http://127.0.0.1:5000'; // Mova para cá ou para um arquivo de config
+const API_URL = 'http://127.0.0.1:5000';
 
 // Chaves para localStorage
 const AUTH_TOKEN_KEY = 'authToken';
@@ -27,7 +27,7 @@ export const ContaProvider = ({ children }) => {
   const conectarEAutenticarCarteiraContext = async () => {
     if (typeof window.ethereum === 'undefined') {
       setMostrarPopupMetamask(true); // Controla o popup a partir do contexto
-      return null; // Retorna null ou lança erro para indicar falha
+      return null;
     }
 
     setEstaAutenticando(true);
