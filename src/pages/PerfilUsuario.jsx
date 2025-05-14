@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar.jsx';
 import '../styles/PerfilUsuario.css';
+import '../styles/PaginaPerfil.css';
 import Avaliacao from '../components/Avaliacao.jsx';
 import { ContaContext } from '../context/ContaContext';
 import axios from 'axios';
@@ -24,7 +25,8 @@ function PerfilUsuario() {
     descricao: "",
     avaliacao: 0,
     created_at: "",
-    address: ""
+    address: "",
+    categorias_servico: []
   });
   const [loading, setLoading] = useState(true);
   const [errorPage, setErrorPage] = useState(null);
@@ -34,10 +36,12 @@ function PerfilUsuario() {
   const [editFormData, setEditFormData] = useState({
     nome: "",
     profissao: "",
-    descricao: ""
+    descricao: "",
+    categorias_servico: []
   });
   const [isSaving, setIsSaving] = useState(false);
   const [editError, setEditError] = useState(null);
+  const [allCategories, setAllCategories] = useState([]);
 
 
   const toggleOverlayUsuario = () => setOverlayUsuario(!overlayUsuario);
@@ -67,19 +71,21 @@ function PerfilUsuario() {
         if (isMounted) {
           const perfil = response.data;
           setUsuarioData({
-            nome: perfil.nome || "", // Initialize nome as empty string if null
+            nome: perfil.nome || "",
             profissao: perfil.profissao || "Não informado",
             tempo_atuacao: perfil.tempo_atuacao || "Não informado",
             descricao: perfil.descricao || "Nenhuma descrição.",
             avaliacao: perfil.avaliacao_media || 0,
             created_at: perfil.created_at,
-            address: perfil.address
+            address: perfil.address,
+            categorias_servico: perfil.categorias_servico || [] 
           });
-          // Initialize edit form data when profile data is fetched
-          setEditFormData({
+          // Inicializa o estado do formulário de edição com os dados do perfil
+          setEditFormData({ 
             nome: perfil.nome || "",
             profissao: perfil.profissao || "",
-            descricao: perfil.descricao || ""
+            descricao: perfil.descricao || "",
+            categorias_servico: perfil.categorias_servico || []
           });
           return perfil.address;
         }
@@ -114,11 +120,28 @@ function PerfilUsuario() {
       }
     };
 
+    const fetchAllCategories = async () => {
+      if (!isMounted) return;
+      try {
+        const response = await axios.get(`${API_BASE_URL}/categoria`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (isMounted && response.data && response.data.dados) {
+          setAllCategories(response.data.dados);
+        }
+      } catch (error) {
+        if (isMounted) {
+          console.error("Erro ao buscar todas as categorias:", error.response?.data || error.message);
+        }
+      }
+    };
+
     fetchUserProfile()
       .then(userAddressFromProfile => {
         if (userAddressFromProfile && isMounted) {
-          return fetchUserContracts(userAddressFromProfile);
+          fetchUserContracts(userAddressFromProfile);
         }
+        fetchAllCategories();
       })
       .catch(() => {
         if (isMounted) console.log("Cadeia de promises interrompida devido a erro anterior.");
@@ -134,13 +157,14 @@ function PerfilUsuario() {
 
   const handleEditToggle = () => {
     if (!isEditing) {
-      // Entering edit mode, prefill form with current data
+      // modo de edição ativado
       setEditFormData({
-        nome: usuarioData.nome || "", // Use empty string if null
+        nome: usuarioData.nome || "",
         profissao: usuarioData.profissao === "Não informado" ? "" : usuarioData.profissao,
         descricao: usuarioData.descricao === "Nenhuma descrição." ? "" : usuarioData.descricao,
+        categorias_servico: usuarioData.categorias_servico || []
       });
-      setEditError(null); // Clear previous edit errors
+      setEditError(null);
     }
     setIsEditing(!isEditing);
   };
@@ -148,6 +172,16 @@ function PerfilUsuario() {
   const handleEditFormChange = (e) => {
     const { name, value } = e.target;
     setEditFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCategoryChange = (categoryId) => {
+    setEditFormData(prev => {
+      const currentCategories = prev.categorias_servico || [];
+      const updatedCategories = currentCategories.includes(categoryId)
+        ? currentCategories.filter(id => id !== categoryId)
+        : [...currentCategories, categoryId];
+      return { ...prev, categorias_servico: updatedCategories };
+    });
   };
 
   const handleSaveProfile = async () => {
@@ -160,24 +194,31 @@ function PerfilUsuario() {
     setIsSaving(true);
     setEditError(null);
     try {
-      // Prepare data, ensure empty strings are sent if user clears a field
-      // Backend should handle empty strings appropriately (e.g., store as null or empty)
+      // Mapear IDs de categoria para nomes de categoria
+      const selectedCategoryNames = (editFormData.categorias_servico || []).map(catId => {
+        const categoryObject = allCategories.find(cat => cat._id === catId);
+        return categoryObject ? categoryObject.Name : null;
+      }).filter(name => name !== null); // Filtra qualquer ID que não encontrou um nome correspondente
+
       const payload = {
-        nome: editFormData.nome.trim() === "" ? null : editFormData.nome.trim(), // Send null if name is empty after trim
+        nome: editFormData.nome.trim() === "" ? null : editFormData.nome.trim(),
         profissao: editFormData.profissao.trim(),
-        descricao: editFormData.descricao.trim()
+        descricao: editFormData.descricao.trim(),
+        categorias_servico: selectedCategoryNames
       };
 
       const response = await axios.put(`${API_BASE_URL}/perfilusuario`, payload, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+      
+      const updatedProfile = response.data.perfil || response.data;
 
-      // Update local state with new data from response or payload
       setUsuarioData(prev => ({
         ...prev,
-        nome: response.data.nome || payload.nome || "", // Use response data if available
-        profissao: response.data.profissao || payload.profissao || "Não informado",
-        descricao: response.data.descricao || payload.descricao || "Nenhuma descrição."
+        nome: updatedProfile.nome || payload.nome || "",
+        profissao: updatedProfile.profissao || payload.profissao || "Não informado",
+        descricao: updatedProfile.descricao || payload.descricao || "Nenhuma descrição.",
+        categorias_servico: updatedProfile.categorias_servico || payload.categorias_servico || [] // Update categories
       }));
       setIsEditing(false);
     } catch (error) {
@@ -312,6 +353,28 @@ function PerfilUsuario() {
                     rows="4"
                   />
                 </div>
+                <div className="form-group">
+                  <label>Categorias de Serviço:</label>
+                  <div className="categories-checkbox-group">
+                    {allCategories.length > 0 ? (
+                      allCategories.map(cat => (
+                        <div key={cat._id} className="category-checkbox-item">
+                          <input
+                            type="checkbox"
+                            id={`cat-edit-${cat._id}`}
+                            name={cat.Name}
+                            value={cat._id}
+                            checked={(editFormData.categorias_servico || []).includes(cat._id)}
+                            onChange={() => handleCategoryChange(cat._id)}
+                          />
+                          <label htmlFor={`cat-edit-${cat._id}`}>{cat.Name}</label>
+                        </div>
+                      ))
+                    ) : (
+                      <p>Carregando categorias...</p>
+                    )}
+                  </div>
+                </div>
                 {editError && <p className="edit-error-message">{editError}</p>}
                 <div className="edit-profile-actions">
                   <button onClick={handleSaveProfile} disabled={isSaving} className="save-profile-button">
@@ -325,12 +388,24 @@ function PerfilUsuario() {
             ) : (
               <>
                 <p id="nome" className="desc_perfil">
-                  {/* Display formatted address if name is empty or just whitespace */}
                   {(usuarioData.nome && usuarioData.nome.trim() !== "") ? usuarioData.nome : formatarEndereco(usuarioData.address)}
                 </p>
                 <p className="desc_perfil">Profissão: {usuarioData.profissao}</p>
                 <p className="desc_perfil">Tempo de atuação: {usuarioData.tempo_atuacao}</p>
                 <p className="desc_perfil">Descrição: {usuarioData.descricao}</p>
+                <div className="user-categories-view">
+                  <p className="desc_perfil"><strong>Categorias de Serviço:</strong></p>
+                  {usuarioData.categorias_servico && usuarioData.categorias_servico.length > 0 && allCategories.length > 0 ? (
+                    <ul className="user-categories-list">
+                      {usuarioData.categorias_servico.map(catId => {
+                        const category = allCategories.find(c => c._id === catId);
+                        return category ? <li key={catId} className="user-category-item">{category.Name}</li> : null;
+                      })}
+                    </ul>
+                  ) : (
+                    <p className="desc_perfil_item">Nenhuma categoria selecionada.</p>
+                  )}
+                </div>
                 <p className="desc_perfil">Membro desde: {usuarioData.created_at ? new Date(usuarioData.created_at).toLocaleDateString() : 'N/A'}</p>
                 <Avaliacao avaliacao={usuarioData.avaliacao} />
                 <button onClick={handleEditToggle} className="edit-profile-button">
