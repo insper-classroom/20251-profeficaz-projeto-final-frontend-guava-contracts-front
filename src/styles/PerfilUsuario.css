@@ -169,6 +169,61 @@
   cursor: not-allowed;
 }
 
+.categories-checkbox-group {
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin-top: 0.3rem;
+}
+
+.category-checkbox-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.category-checkbox-item input[type="checkbox"] {
+  margin-right: 0.75rem;
+  height: 16px;
+  cursor: pointer;
+}
+
+.category-checkbox-item label {
+  font-weight: normal;
+  font-size: 0.9rem;
+  color: #333;
+  cursor: pointer;
+}
+
+
+.user-categories-view {
+  margin-top: 0.5rem; 
+  margin-bottom: 0.5rem;
+}
+
+.user-categories-view .desc_perfil { 
+  margin-bottom: 0.25rem;
+}
+
+.user-categories-list {
+  list-style-type: none; 
+  padding-left: 0;
+  margin-top: 0.25rem;
+}
+
+.user-category-item {
+  font-size: 0.95rem;
+  color: #333;
+  background-color: #f0f0f0; 
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block; 
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
 .edit-error-message {
   color: #dc3545;
   font-size: 0.85rem;
