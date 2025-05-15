@@ -1,36 +1,41 @@
-import Navbar from '../components/Navbar';
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import '../styles/Categoria.css'
+import Navbar from '../components/Navbar'
+import React from 'react'
+import { useParams } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import axios from 'axios';
-import Avaliacao from '../components/Avaliacao';
 
-const formatarEndereco = (endereco) => {
-  if (!endereco) return '';
-  return `${endereco.slice(0, 6)}...${endereco.slice(-4)}`;
-};
-
-const API_BASE_URL = 'http://127.0.0.1:5000'; // Define API_BASE_URL
 
 function Categoria () {
-  const [freelancersNaCategoria, setFreelancersNaCategoria] = useState([]);
+  
+  const [servicos, setServicos] = useState([]);
   const [nomeCategoria, setNomeCategoria] = useState('');
-  const {id} = useParams();
+  const {id} = useParams()
+  const rows = [
+    {"address": "6809410ee314814015b7f9ca" ,"nome": "Thales", "tempoDeAtuacao": "2 anos", "avaliacao": 4.5},
+  ]
+
 
   useEffect(() => {
-    axios.get(`${API_BASE_URL}/categoria/${id}/usuarios`)
+    axios.get(`http://127.0.0.1:5000/servico/categoria/${id}`)
       .then((response) => {
-        setFreelancersNaCategoria(response.data.usuarios || response.data.dados || response.data || []);
-        console.log("Freelancers na categoria:", response.data);
+        
+        setServicos(response.data)
+        console.log("categoria", response.data)
       })
-      .catch((error) => console.error("Erro ao buscar freelancers na categoria", error));
-    axios.get(`${API_BASE_URL}/categoria/${id}`)
+      .catch((error) => console.error("erro ao buscar categorias", error))
+  }, [])
+
+
+  useEffect(() => {
+    axios.get(`http://127.0.0.1:5000/categoria/${id}`)
       .then((response) => {
-        setNomeCategoria(response.data.Name);
-        console.log("Nome da categoria:", response.data.Name);
+
+        setNomeCategoria(response.data.Name)
+        console.log("categoria", response.data.Name)
       })
-      .catch((error) => console.error("Erro ao buscar nome da categoria", error));
-  }, [id]);
+      .catch((error) => console.error("erro ao buscar categorias", error))
+  }, [])
 
   return (
     <>
@@ -40,35 +45,42 @@ function Categoria () {
 
         <div className='lista_categoria_container'>
           <ul className='header_lista'>
-            <li className='list_title'>Nome / Endereço</li>
-            <li className='list_title'>Profissão</li>
-            <li className='list_title'>Avaliação</li>
+            <li className='list_title'>
+              Nome
+            </li>
+            <li className='list_title'>
+              
+            </li>
+            <li className='list_title'>
+              Tags
+            </li>
           </ul>
-          {freelancersNaCategoria.length > 0 ? (
-            freelancersNaCategoria.map((freelancer, index) => (
-              <a href={`/perfil/${freelancer._id}`} className='row_lista' key={freelancer._id || freelancer.address || index}> 
-                <ul className='body_lista'>
-                  <div className='row_div'>
-                    <li className='list_item'>
-                      {freelancer.nome || formatarEndereco(freelancer.address)}
-                    </li>
-                    <li className='list_item'>
-                      {freelancer.profissao || 'N/A'}
-                    </li>
-                    <li className='list_item'>
-                      <Avaliacao avaliacao={freelancer.avaliacao_media || 0} />
-                    </li>
-                  </div>
-                </ul>
+          {servicos.map((servico, index) => (
+            <ul className='body_lista' key={servico.address || index}>
+              <a href={`/perfil/${servico.address}`} className='row_lista'>
+                <div className='row_div'>
+                  <li className='list_item'>
+                    {servico.title}
+                  </li>
+
+                  <li className='list_item'>
+                    {servico.tempoDeAtuacao}
+                  </li>
+
+                  <li className='list_item'>
+                    {servico.tags && servico.tags.slice(0, 3).join(', ')}
+                  </li>
+
+                </div>
               </a>
-            ))
-          ) : (
-            <p style={{ textAlign: 'center', marginTop: '20px' }}>Nenhum freelancer encontrado para esta categoria.</p>
-          )}
+            </ul>
+          ))}
         </div>
+
       </div>
     </>
   )
+
 }
 
-export default Categoria;
+export default Categoria
