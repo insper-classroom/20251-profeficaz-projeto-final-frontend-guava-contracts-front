@@ -31,12 +31,12 @@ function ResultadosBusca({ resultados }) {
                 <i className="fas fa-folder"></i> {servico.category}
               </span>
             </div>
-            <Link 
-              to={`/perfil/${servico.profissionalId}`} 
+            <a 
+              href={`/servico/user/${servico.title}`} 
               className="ver-servico-btn"
             >
               Ver Profissional
-            </Link>
+            </a>
           </div>
         ))}
       </div>
