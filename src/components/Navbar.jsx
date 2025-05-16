@@ -1,7 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import '../styles/Navbar.css';
 import React from 'react';
-import SejaContratado from '../pages/SejaContratado';
 import { ContaContext } from '../context/ContaContext'; // Importa o contexto
 
 // Remova API_URL e chaves de localStorage daqui se estiverem no contexto
