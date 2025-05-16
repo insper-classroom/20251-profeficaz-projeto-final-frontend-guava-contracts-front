@@ -106,10 +106,8 @@ function ServicoPerfil({servico_id}) {
     }
   
     try {
-      // Log para debug dos dados do serviço
       console.log('Dados completos do serviço:', servico);
   
-      // Verifica se temos o ID do freelancer nos dados do serviço
       const freelancerId = servico._id || servico.id || servico.freelancer_id || servico.usuario_id;
       
       if (!freelancerId) {
@@ -118,12 +116,11 @@ function ServicoPerfil({servico_id}) {
   
       const dadosContrato = {
         id_freela: freelancerId,
-        id_contratante: "0x123...", // Endereço do contratante (você precisa ter isso disponível)
-        valor: servico.valor || 2000.00, // Usa o valor do serviço ou um valor padrão
+        id_contratante: "0x123...", 
+        valor: servico.valor || 2000.00, 
         servico: servico.desc || servico.descricao || 'Serviço não especificado'
       };
   
-      // Log dos dados antes do envio
       console.log('Dados do contrato a serem enviados:', dadosContrato);
   
       const response = await axios.post('http://127.0.0.1:5000/contrato', dadosContrato, {

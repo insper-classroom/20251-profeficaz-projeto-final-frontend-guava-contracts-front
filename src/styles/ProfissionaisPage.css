@@ -1,0 +1,89 @@
+.profissionais-page {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.profissionais-page h1 {
+  color: #2c3e50;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.profissionais-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.profissional-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.profissional-card:hover {
+  transform: translateY(-5px);
+}
+
+.profissional-card h2 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.profissional-card p {
+  color: #666;
+  margin-bottom: 1rem;
+  flex-grow: 1;
+}
+
+.info {
+  display: flex;
+  justify-content: space-between;
+  margin: 1rem 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.ver-perfil-btn {
+  display: inline-block;
+  padding: 0.8rem 1.5rem;
+  background: #3498db;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  text-align: center;
+  transition: background-color 0.2s;
+}
+
+.ver-perfil-btn:hover {
+  background: #2980b9;
+}
+
+.loading, .erro, .no-results {
+  text-align: center;
+  padding: 2rem;
+  margin: 1rem 0;
+  border-radius: 8px;
+}
+
+.loading {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.erro {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.no-results {
+  background: #f5f5f5;
+  color: #666;
+}

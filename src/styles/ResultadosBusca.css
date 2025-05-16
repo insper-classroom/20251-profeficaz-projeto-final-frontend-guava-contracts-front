@@ -1,0 +1,89 @@
+.resultados-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.resultados-container h2 {
+  color: #2c3e50;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.resultados-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.resultado-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.resultado-card:hover {
+  transform: translateY(-5px);
+}
+
+.resultado-card h3 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.tag {
+  background: #e1f5fe;
+  color: #0288d1;
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.85rem;
+}
+
+.servico-info {
+  margin: 1rem 0;
+  color: #666;
+}
+
+.categoria {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ver-servico-btn {
+  display: inline-block;
+  width: 100%;
+  padding: 0.8rem;
+  background: #643ad7;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  text-align: center;
+  margin-top: auto;
+  transition: background-color 0.2s;
+}
+
+.ver-servico-btn:hover {
+  background: #4d11a6;
+}
+
+.resultados-vazios {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  background: #f5f5f5;
+  border-radius: 8px;
+  margin: 2rem;
+}

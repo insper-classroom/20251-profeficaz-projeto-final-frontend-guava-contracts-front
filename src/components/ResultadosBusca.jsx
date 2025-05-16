@@ -12,7 +12,6 @@ function ResultadosBusca({ resultados }) {
     );
   }
 
-  // Filtra apenas os serviços
   const servicos = resultados.filter(r => r.tipo === 'servico');
 
   return (
