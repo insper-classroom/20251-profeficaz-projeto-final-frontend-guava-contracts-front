@@ -15,7 +15,7 @@ function PaginaPerfil() {
 
   useEffect(() => {
     console.log("ID do perfil:", id);
-    axios.get(`http://127.0.0.1:5000/user/${id}`)
+    axios.get(`http://127.0.0.1:5000/usuario/${id}`)
       .then((response) => {
         console.log('Dados recebidos:', response.data);
         setPerfil(response.data);

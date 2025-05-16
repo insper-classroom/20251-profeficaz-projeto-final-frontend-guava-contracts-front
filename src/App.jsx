@@ -8,6 +8,7 @@ import PaginaPerfil from './pages/PaginaPerfil.jsx';
 import AvaliacaoContratante from './pages/AvaliacaoContratante.jsx';
 import AvaliacaoFreela from './pages/AvaliacaoFreela.jsx';
 import PerfilUsuario from './pages/PerfilUsuario.jsx';
+import UsuariosPorServico from './pages/ProcuraPerfilporServico.jsx';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/avaliacaocontratante" element={<AvaliacaoContratante />} />
         <Route path="/avaliacaofreela" element={<AvaliacaoFreela />} />
         <Route path="/perfilusuario" element={<PerfilUsuario />} />
+        <Route path="/servico/user/:title" element={<UsuariosPorServico />} />
       </Routes>
     </ContaProvider>
   );
