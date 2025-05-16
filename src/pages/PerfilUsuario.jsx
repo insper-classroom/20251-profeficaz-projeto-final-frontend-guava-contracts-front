@@ -319,9 +319,7 @@ function PerfilUsuario() {
           </div>
           <div className="detalhes_perfil">
             {isEditing ? (
-              <div className="edit-profile-form">
-                <div className="form-group">
-                  <label htmlFor="nome">Nome:</label>
+              <div className="edit-profile-form"> <div className="form-group"> <label htmlFor="nome">Nome:</label>
                   <input
                     type="text"
                     id="nome"

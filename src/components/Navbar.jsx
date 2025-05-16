@@ -17,12 +17,7 @@ function Navbar() {
     setErroAuthContext, // Para limpar o erro
   } = useContext(ContaContext);
 
-  const [overlay, setOverlay] = useState(false);
 
-  const toggleOverlay = () => {
-    setOverlay(!overlay);
-    if (erroAuthContext && setErroAuthContext) setErroAuthContext(null); // Limpa erro do contexto ao abrir overlay
-  };
 
   const formatarEndereco = (endereco) => {
     if (!endereco) return "Conectar";
@@ -31,16 +26,12 @@ function Navbar() {
 
   return (
     <>
-      <SejaContratado state={overlay} onClose={toggleOverlay}/>
       <nav>
         <div className="Titulo">
           <a id='guava' href="/">Guava</a>
         </div>
 
         <ul className="Nav-Items">
-          <li>
-            <a href="#" onClick={toggleOverlay} className="seja-contratado">Seja Contratado</a>
-          </li>
           <li>
             <a href="/categorias" className="contrate"> Contrate</a>
           </li>
