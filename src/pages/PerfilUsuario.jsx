@@ -27,6 +27,7 @@ function PerfilUsuario() {
     created_at: "",
     address: "",
     categorias_servico: []
+
   });
   const [loading, setLoading] = useState(true);
   const [errorPage, setErrorPage] = useState(null);
@@ -106,7 +107,7 @@ function PerfilUsuario() {
     const fetchUserContracts = async (userAddress) => {
       if (!userAddress) return;
       try {
-        const response = await axios.get(`${API_BASE_URL}/contratos/usuario/${userAddress}`, {
+        const response = await axios.get(`${API_BASE_URL}/contratos/usuario?address=${userAddress}`, {
            headers: { 'Authorization': `Bearer ${token}` }
         });
         if (isMounted) {
