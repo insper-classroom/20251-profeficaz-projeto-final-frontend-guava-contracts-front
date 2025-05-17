@@ -29,7 +29,7 @@ function Categorias () {
         <ul className="lista_categorias" >
           {categorias.map(categoria => (
             <li key={categoria._id}>
-              <a href={`/categorias/${categoria._id}`} className="categoria_link">
+              <a href={`/categorias/${categoria.Name}`} className="categoria_link">
                 <div className='container_da_categoria'>
                   <span className='titulo_da_categoria'>
                     {categoria.Name}
