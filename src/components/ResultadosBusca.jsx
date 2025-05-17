@@ -32,7 +32,7 @@ function ResultadosBusca({ resultados }) {
               </span>
             </div>
             <a 
-              href={`/servico/user/${servico.title}`} 
+              href={`/categorias/servicos/${servico.title}`} 
               className="ver-servico-btn"
             >
               Ver Profissional
