@@ -13,6 +13,7 @@ function LandingPage() {
   const [resultados, setResultados] = useState([]);
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState(null);
+  const[buscaRealizada, setBuscaRealizada] = useState(false);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -28,6 +29,7 @@ function LandingPage() {
   setLoading(true);
   setErro(null);
   setResultados([]);
+  setBuscaRealizada(true);
 
   try {
     const url = `http://127.0.0.1:5000/buscar?termo=${encodeURIComponent(searchTerm.trim())}`;
@@ -80,7 +82,7 @@ function LandingPage() {
       <div className="resultados-section">
         {loading && <div className="loading">Buscando...</div>}
         {erro && <div className="erro">{erro}</div>}
-        {!loading && !erro && resultados.length === 0 && searchTerm && (
+        {!loading && !erro && buscaRealizada &&resultados.length === 0 && (
           <div className="no-results">
             Nenhum resultado encontrado para "{searchTerm}"
           </div>
