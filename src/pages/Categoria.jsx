@@ -57,7 +57,7 @@ function Categoria () {
           </ul>
           {servicos.map((servico, index) => (
             <ul className='body_lista' key={servico.address || index}>
-              <a href={`/servico/user/${servico.title}`} className='row_lista'>
+              <a href={`/categorias/servicos/${servico.title}`} className='row_lista'>
                 <div className='row_div'>
                   <li className='list_item'>
                     {servico.title}

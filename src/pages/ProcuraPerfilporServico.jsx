@@ -28,9 +28,8 @@ function UsuariosPorServico () {
 
 
   useEffect(() => {
-    // if (!nomeServico) return
 
-    axios.get(`http://127.0.0.1:5000/servico/user/${title}`)
+    axios.get(`http://127.0.0.1:5000/categorias/servicos/${title}`)
       .then((res) => {
         setUsuarios(res.data.usuarios)
       })
