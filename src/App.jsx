@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Routes, Route } from 'react-router-dom';
 import { ContaProvider } from './context/ContaContext';
 import LandingPage from './pages/LandingPage.jsx';

@@ -67,13 +67,41 @@
   align-items: center;
   width: 100%;
   border-bottom: 2px solid #BEBEBE;
+  flex-direction: column;
 }
 
 .titulo_portifolio {
   font-size: 2rem;
   font-weight: 700;
   color: #404040;
-  margin: 2% 0;
+  margin: 1% 0;
+}
+
+.parte_titulo {
+  display: flex;
+  justify-content: center;
+  width: 80%;
+  border-bottom: 2px solid #BEBEBE;
+}
+
+.tabs_contratos {
+  margin-top: 2%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 90%;
+
+}
+
+.tab_contrato {
+  width: 49%;
+  border-style: none;
+  outline: none;
+  height: 5vh;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1rem;
 }
 
 .overlay-perfil {
@@ -228,6 +256,18 @@
   color: #dc3545;
   font-size: 0.85rem;
   margin-top: 0.5rem;
+}
+
+.modal {
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal-content-perfil {
