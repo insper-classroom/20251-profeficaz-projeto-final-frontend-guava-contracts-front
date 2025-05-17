@@ -83,7 +83,7 @@ function ServicoPerfil({servico_id}) {
   useEffect(() => {
     const fetchServico = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:5000/servico/${servico_id}`);
+        const response = await axios.get(`http://127.0.0.1:5000/usuario/servicos/${servico_id}`);
         console.log('Resposta da API de serviço:', response.data);
         setServico(response.data);
       } catch (error) {
@@ -152,7 +152,7 @@ function ServicoPerfil({servico_id}) {
   return (
     <>
       {!servico ? (
-        <div className="loading">Carregando...</div>
+        <div className=""></div>
       ) : (
         <>
           <div className="servico">
