@@ -1,0 +1,245 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kanit:wght@600;700&display=swap');
+
+body {
+  margin: 0;
+  font-family: "Inter", Arial, sans-serif;
+  line-height: 1.6;
+  background-color: #f8f9fa;
+}
+
+.negotiation-container {
+  max-width: 800px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background-color: #f8f9fa;
+  min-height: calc(100vh - 6rem); 
+  border-radius: 12px;
+}
+
+.negotiation-title {
+  font-family: "Kanit", sans-serif; 
+  font-size: 2.5rem; 
+  font-weight: 700; 
+  text-align: center;
+  margin-bottom: 2.5rem; 
+  color: #36227F; 
+}
+
+/* Área de Status */
+.status-message {
+  background-color: #e7dfff; 
+  color: #36227F; 
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-weight: 500;
+  border: 1px solid #c5b3f3; 
+}
+
+/* Histórico de Negociações e Área de Ações (Cards) */
+.negotiation-history,
+.negotiation-actions {
+  background-color: white;
+  padding: 1.5rem 2rem; 
+  border-radius: 10px; 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
+  margin-bottom: 2rem; 
+}
+
+.negotiation-history {
+  max-height: 24rem; 
+  overflow-y: auto;
+}
+
+.history-title,
+.actions-title {
+  font-family: "Inter", sans-serif;
+  font-size: 1.4rem; 
+  font-weight: 600;
+  margin-bottom: 1.5rem; 
+  color: #333;
+}
+
+.history-empty {
+  color: #6c757d; 
+  font-style: italic;
+}
+
+.history-item {
+  margin-bottom: 0.75rem; 
+  padding: 0.8rem 1rem;
+  border-radius: 6px; 
+  font-size: 0.95rem;
+}
+
+.item-client {
+  background-color: #f0eaff; 
+  color: #36227F;
+  text-align: right;
+  border-left: 4px solid #6e2feb; 
+}
+
+.item-freelancer {
+  background-color: #e6fff3; 
+  color: #1a6a40;
+  text-align: left;
+  border-right: 4px solid #28a745; 
+}
+
+.item-accepted {
+  background-color: #d1f7c4; 
+  color: #1e4620;
+  font-weight: bold;
+  border: 1px solid #a8e096;
+}
+
+.item-rejected {
+  background-color: #ffebee; 
+  color: #c62828;
+  font-weight: bold;
+  border: 1px solid #ffcdd2;
+}
+
+.history-item strong {
+  font-weight: 600;
+}
+
+
+/* Input de Proposta */
+.input-group {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem; 
+}
+
+.offer-input {
+  flex-grow: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ced4da; 
+  border-radius: 6px;
+  outline: none;
+  font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.offer-input:focus {
+  border-color: #6e2feb; 
+  box-shadow: 0 0 0 0.2rem rgba(110, 47, 235, 0.25); 
+}
+
+/* Botões */
+.send-button,
+.accept-button,
+.reject-button {
+  padding: 0.75rem 1.5rem; 
+  border-radius: 25px;    
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease; 
+  font-size: 0.95rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.send-button:hover,
+.accept-button:hover,
+.reject-button:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
+}
+
+.send-button {
+  background: linear-gradient(90deg, #6e2feb, #5700C9); 
+  color: white;
+}
+.send-button:hover {
+  background: linear-gradient(90deg, #5a1fcf, #4600a3);
+}
+
+.accept-button {
+  background-color: #28a745; 
+  color: white;
+}
+.accept-button:hover {
+  background-color: #218838;
+}
+
+.reject-button {
+   background-color: #dc3545; 
+   color: white;
+ }
+ .reject-button:hover {
+   background-color: #c82333;
+ }
+
+.send-button:disabled,
+.accept-button:disabled,
+.reject-button:disabled {
+  background: #adb5bd; 
+  color: #6c757d;
+  opacity: 0.7;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+.send-button:disabled:hover,
+.accept-button:disabled:hover,
+.reject-button:disabled:hover {
+  background: #adb5bd;
+}
+
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end; 
+  margin-top: 1rem; 
+}
+
+
+.negotiation-finalized {
+  background-color: #d4edda; 
+  color: #155724; 
+  padding: 1.25rem; 
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600; /* Negrito */
+  margin-top: 2rem;
+  border: 1px solid #c3e6cb;
+  font-size: 1.1rem;
+}
+
+
+@media (max-width: 768px) { 
+  .negotiation-container {
+    margin: 2rem 1rem;
+    padding: 1.5rem;
+  }
+  .negotiation-title {
+    font-size: 2rem;
+  }
+  .history-title,
+  .actions-title {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .input-group {
+    flex-direction: column;
+    gap: 0.75rem; /* Espaço ajustado */
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .send-button,
+  .accept-button,
+  .reject-button {
+    width: 100%;
+    text-align: center;
+  }
+}

@@ -11,8 +11,7 @@ import PerfilUsuario from './pages/PerfilUsuario.jsx';
 import UsuariosPorServico from './pages/ProcuraPerfilporServico.jsx';
 import ProfissionaisPage from './pages/ProfissionaisPage';
 import ServicosPage from './pages/ServicosPage';
-
-
+import Pagina_Negociacao_Contrato from './pages/Negociacao_Contrato.jsx';
 
 function App() {
   return (
@@ -28,8 +27,7 @@ function App() {
         <Route path="/servico/user/:title" element={<UsuariosPorServico />} />
         <Route path="/profissionais" element={<ProfissionaisPage />} />
         <Route path="/servicos" element={<ServicosPage />} />
-
-
+        <Route path="/contrato/:id/negociar" element={<Pagina_Negociacao_Contrato />} />
       </Routes>
     </ContaProvider>
   );
