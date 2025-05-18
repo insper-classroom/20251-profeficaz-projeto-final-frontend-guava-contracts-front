@@ -140,12 +140,18 @@ function PaginaNegociacao() {
     try {
       // Os endpoints agora são relativos à negociação
       let endpoint = `${API_BASE_URL}/negociacao/${negotiationId}/`; 
-      const payload = { role: currentUserRole };
+      const payload = { 
+        role: currentUserRole,
+        proposta: parseFloat(currentOfferInput),
+        status_negociacao: negotiationDetails.status_negociacao, 
+      };
+      console.log("Payload:", payload);
 
       if (actionType === 'propose') {
-        endpoint += 'propor'; // ou 'ofertar'
-        payload.valor = parseFloat(currentOfferInput);
-        if (isNaN(payload.valor) || payload.valor <= 0) {
+        endpoint += 'propor';
+        payload.proposta = parseFloat(currentOfferInput);
+        console.log("Proposta:", payload.proposta);
+        if (isNaN(payload.proposta) || payload.proposta <= 0) {
           alert("Valor da proposta inválido.");
           setLoading(false);
           return;
@@ -170,8 +176,8 @@ function PaginaNegociacao() {
       }
 
       // A resposta da ação pode incluir o estado atualizado da negociação
-      const actionResponse = await axios.post(endpoint, payload, { headers: { 'Authorization': `Bearer ${token}` } });
-      
+      const actionResponse = await axios.put(`${endpoint}/${payload.proposta}`, payload, { headers: { 'Authorization': `Bearer ${token}` } });
+
       // Atualizar dados com base na resposta da ação ou refazendo o fetch
       const updatedNegDetails = actionResponse.data.dados || actionResponse.data; // Supondo que a API retorna os detalhes atualizados
       
