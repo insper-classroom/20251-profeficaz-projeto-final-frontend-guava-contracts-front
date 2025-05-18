@@ -31,7 +31,7 @@ function App() {
         <Route path="/servicos" element={<ServicosPage />} />
         <Route path="/contrato/:id/negociar" element={<Pagina_Negociacao_Contrato />} />
         <Route path="/avaliacao" element={<AvaliacaoPage />} />
-
+        <Route path="/negociar" element={<Pagina_Negociacao_Contrato />} />
       </Routes>
     </ContaProvider>
   );
