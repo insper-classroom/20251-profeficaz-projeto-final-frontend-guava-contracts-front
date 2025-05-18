@@ -93,11 +93,23 @@
 
 }
 
-.tab_contrato {
+.tab_prestador_false, .tab_cliente_false {
   width: 49%;
   border-style: none;
   outline: none;
   height: 5vh;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.tab_prestador_true, .tab_cliente_true {
+  width: 49%;
+  border-style: none;
+  outline: none;
+  height: 5vh;
+  background-color: #cdcdcd;
   margin-bottom: 10px;
   border-radius: 8px;
   font-weight: bold;

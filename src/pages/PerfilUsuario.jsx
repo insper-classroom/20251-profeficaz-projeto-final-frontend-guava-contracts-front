@@ -21,6 +21,8 @@ function PerfilUsuario() {
   const [contratosCliente, setContratosCliente] = useState([]);
   const [contratosPrestador, setContratosPrestador] = useState([]);
   const [mostrarContratosPrestador, setMostrarContratosPrestador] = useState(true);
+  const [tabPrestador, setTabPrestador] = useState(true);
+  const [tabCliente, setTabCliente] = useState(false);
   const [usuarioData, setUsuarioData] = useState({
     nome: "",
     profissao: "",
@@ -77,7 +79,11 @@ function PerfilUsuario() {
 
 
   const toggleOverlayUsuario = () => setOverlayUsuario(!overlayUsuario);
-  const toggleMostrarContratos = () => setMostrarContratosPrestador(!mostrarContratosPrestador);
+  const toggleMostrarContratos = () => {
+    setMostrarContratosPrestador(!mostrarContratosPrestador)
+    setTabPrestador(!tabPrestador);
+    setTabCliente(!tabCliente);
+  };
 
   const formatarEndereco = (endereco) => {
     if (!endereco) return '';
@@ -457,8 +463,8 @@ function PerfilUsuario() {
             <p className="titulo_portifolio">Meus Contratos</p>
             </div>
             <div className="tabs_contratos">
-              <button className="tab_contrato" onClick={() => {toggleMostrarContratos()}}>Como Prestador</button>
-              <button className="tab_contrato" onClick={() => {toggleMostrarContratos()}}>Como Cliente</button>
+              <button className={`tab_prestador_${tabPrestador}`} onClick={() => {toggleMostrarContratos()}}>Como Prestador</button>
+              <button className={ `tab_cliente_${tabCliente}` } onClick={() => {toggleMostrarContratos()}}>Como Cliente</button>
             </div>
           </div>
           {mostrarContratosPrestador ? 
