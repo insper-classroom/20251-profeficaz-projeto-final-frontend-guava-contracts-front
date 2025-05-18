@@ -1,4 +1,3 @@
-// filepath: src/pages/Negociacao_Cliente.jsx
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -8,28 +7,37 @@ import '../styles/Negociacao_Contrato.css';
 const API_BASE_URL = 'http://127.0.0.1:5000';
 const AUTH_TOKEN_KEY = 'authToken';
 
-function Pagina_Negociacao_Contrato() {
-  const { id: contractId } = useParams();
+// Renomear para refletir que é uma negociação, não necessariamente um contrato já existente
+function PaginaNegociacao() { 
+  const { negotiationId } = useParams(); // Mudado de id para negotiationId
   const navigate = useNavigate();
   const { contaConectada, desconectarCarteira } = useContext(ContaContext);
 
-  const [contractDetails, setContractDetails] = useState(null);
+  // contractDetails agora pode ser negotiationDetails
+  const [negotiationDetails, setNegotiationDetails] = useState(null); 
   const [negotiationHistory, setNegotiationHistory] = useState([]);
-  const [currentUserRole, setCurrentUserRole] = useState(null); // 'client' ou 'freelancer'
+  const [currentUserRole, setCurrentUserRole] = useState(null);
   
   const [currentOfferInput, setCurrentOfferInput] = useState('');
   const [statusMessage, setStatusMessage] = useState('Carregando negociação...');
   const [isMyTurn, setIsMyTurn] = useState(false);
-  const [isFinalized, setIsFinalized] = useState(false);
+  const [isFinalized, setIsFinalized] = useState(false); // Baseado no status_negociacao
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!contractId || !contaConectada) {
+    // A verificação de contaConectada permanece
+    if (!contaConectada) {
       setLoading(false);
-      if (!contaConectada) navigate('/'); // Redireciona se não estiver conectado
+      navigate('/'); 
       return;
+    }
+    // Adicionar verificação para negotiationId
+    if (!negotiationId) {
+        setLoading(false);
+        setError("ID da negociação não encontrado na URL.");
+        return;
     }
 
     const fetchData = async () => {
@@ -43,14 +51,19 @@ function Pagina_Negociacao_Contrato() {
       }
 
       try {
-        // 1. Buscar Detalhes do Contrato
-        const contractRes = await axios.get(`${API_BASE_URL}/contrato/${contractId}`, {
+        // 1. Buscar Detalhes da Negociação (incluindo partes e histórico)
+        // O backend precisa de um endpoint que retorne os detalhes da negociação,
+        // incluindo quem é o cliente, quem é o prestador, e o histórico.
+        const negDetailsRes = await axios.get(`${API_BASE_URL}/negociacao/${negotiationId}/detalhes`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        const details = contractRes.data.dados || contractRes.data;
-        setContractDetails(details);
+        
+        const details = negDetailsRes.data.dados || negDetailsRes.data; // Ajuste conforme sua API
+        setNegotiationDetails(details);
+        const history = details.historico || [];
+        setNegotiationHistory(history);
 
-        // 2. Determinar Papel do Usuário
+        // 2. Determinar Papel do Usuário com base nos detalhes da negociação
         let role = null;
         if (details.address_cliente && details.address_cliente.toLowerCase() === contaConectada.toLowerCase()) {
           role = 'client';
@@ -60,23 +73,16 @@ function Pagina_Negociacao_Contrato() {
         setCurrentUserRole(role);
 
         if (!role) {
-          throw new Error("Você não faz parte deste contrato.");
+          throw new Error("Você não faz parte desta negociação ou os detalhes são insuficientes.");
         }
-
-        // 3. Buscar Histórico de Negociação
-        const historyRes = await axios.get(`${API_BASE_URL}/contrato/${contractId}/negociacao`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const history = historyRes.data.historico || historyRes.data.dados || []; 
-        setNegotiationHistory(history);
         
-        // 4. Determinar Turno, Status e Finalização
-        updateNegotiationState(history, role, details.status_contrato);
+        // 3. Determinar Turno, Status e Finalização com base no status_negociacao e histórico
+        updateNegotiationState(history, role, details.status_negociacao);
 
       } catch (err) {
         console.error("Erro ao carregar dados da negociação:", err);
         setError(err.response?.data?.error || err.message || "Erro ao carregar dados.");
-        if (err.response?.status === 401 || err.response?.status === 422) {
+        if (err.response?.status === 401 || err.response?.status === 403 || err.response?.status === 422) {
             if(desconectarCarteira) desconectarCarteira();
             navigate('/');
         }
@@ -86,12 +92,13 @@ function Pagina_Negociacao_Contrato() {
     };
 
     fetchData();
-  }, [contractId, contaConectada, navigate, desconectarCarteira]);
+  }, [negotiationId, contaConectada, navigate, desconectarCarteira]);
 
-  const updateNegotiationState = (history, role, contractStatus) => {
-    if (contractStatus === 'ACEITO' || contractStatus === 'FINALIZADO' || contractStatus === 'CANCELADO') {
+  const updateNegotiationState = (history, role, negotiationStatus) => {
+    // A negociação é considerada finalizada se o status for ACEITA ou REJEITADA (ou CANCELADA)
+    if (negotiationStatus === 'ACEITA' || negotiationStatus === 'REJEITADA' || negotiationStatus === 'CANCELADA') {
       setIsFinalized(true);
-      setStatusMessage(`Negociação ${contractStatus === 'ACEITO' || contractStatus === 'FINALIZADO' ? 'Concluída' : 'Cancelada'}. Status: ${contractStatus}`);
+      setStatusMessage(`Negociação ${negotiationStatus}.`);
       setIsMyTurn(false);
       return;
     }
@@ -99,28 +106,21 @@ function Pagina_Negociacao_Contrato() {
     setIsFinalized(false);
     const lastEntry = history.length > 0 ? history[history.length - 1] : null;
 
-    if (!lastEntry) { // Nenhuma proposta ainda
+    if (!lastEntry) { 
       if (role === 'client') {
         setIsMyTurn(true);
         setStatusMessage('Cliente, faça sua proposta inicial.');
-      } else { // Freelancer
-        // Verifica se há uma proposta inicial no contrato (para o freelancer responder)
-        if (contractDetails?.valor_inicial && contractDetails?.status_contrato === 'PENDENTE_FREELANCER') {
-             setIsMyTurn(true);
-             setStatusMessage('Cliente fez uma proposta inicial. Sua vez, Freelancer.');
-        } else {
-            setIsMyTurn(false);
-            setStatusMessage('Aguardando proposta inicial do Cliente.');
-        }
+      } else { 
+        setIsMyTurn(false);
+        setStatusMessage('Aguardando proposta inicial do Cliente.');
       }
     } else {
-      // lastEntry.actorRole deve ser 'client' ou 'freelancer'
       const lastActorIsClient = lastEntry.actorRole === 'client';
       if (role === 'client') {
-        setIsMyTurn(!lastActorIsClient); // Turno do cliente se o último não foi ele
+        setIsMyTurn(!lastActorIsClient);
         setStatusMessage(!lastActorIsClient ? 'Sua vez (Cliente).' : 'Aguardando resposta do Freelancer.');
-      } else { // Freelancer
-        setIsMyTurn(lastActorIsClient); // Turno do freelancer se o último foi o cliente
+      } else { 
+        setIsMyTurn(lastActorIsClient);
         setStatusMessage(lastActorIsClient ? 'Sua vez (Freelancer).' : 'Aguardando resposta do Cliente.');
       }
     }
@@ -130,7 +130,7 @@ function Pagina_Negociacao_Contrato() {
     setCurrentOfferInput(event.target.value);
   };
 
-  const submitNegotiationAction = async (actionType, value = null) => {
+  const submitNegotiationAction = async (actionType) => {
     if (!currentUserRole) {
       setError("Não foi possível determinar seu papel na negociação.");
       return;
@@ -138,43 +138,58 @@ function Pagina_Negociacao_Contrato() {
     const token = localStorage.getItem(AUTH_TOKEN_KEY);
     setLoading(true);
     try {
-      let endpoint = `${API_BASE_URL}/contrato/${contractId}/`;
+      // Os endpoints agora são relativos à negociação
+      let endpoint = `${API_BASE_URL}/negociacao/${negotiationId}/`; 
       const payload = { role: currentUserRole };
 
       if (actionType === 'propose') {
-        endpoint += 'negociar';
+        endpoint += 'propor'; // ou 'ofertar'
         payload.valor = parseFloat(currentOfferInput);
         if (isNaN(payload.valor) || payload.valor <= 0) {
           alert("Valor da proposta inválido.");
           setLoading(false);
           return;
         }
+        // Se for a primeira proposta do cliente, você pode querer adicionar outros campos ao payload:
+        // if (negotiationHistory.length === 0 && currentUserRole === 'client') {
+        //   payload.descricao_servico = "Descrição da proposta inicial aqui"; // Exemplo
+        //   payload.prazo_estimado = "Prazo da proposta inicial aqui"; // Exemplo
+        // }
       } else if (actionType === 'accept') {
         endpoint += 'aceitar';
+        // Ao aceitar, o backend deve:
+        // 1. Atualizar o status da negociação para 'ACEITA'.
+        // 2. Criar o Contrato formal com base nos dados da negociação.
+        // 3. Opcionalmente, retornar o ID do contrato criado.
       } else if (actionType === 'reject') {
         endpoint += 'rejeitar';
+        // Backend atualiza o status da negociação para 'REJEITADA'.
       } else {
         setLoading(false);
         return;
       }
 
-      await axios.post(endpoint, payload, { headers: { 'Authorization': `Bearer ${token}` } });
+      // A resposta da ação pode incluir o estado atualizado da negociação
+      const actionResponse = await axios.post(endpoint, payload, { headers: { 'Authorization': `Bearer ${token}` } });
       
-      const historyRes = await axios.get(`${API_BASE_URL}/contrato/${contractId}/negociacao`, { headers: { 'Authorization': `Bearer ${token}` } });
-      const newHistory = historyRes.data.historico || historyRes.data.dados || [];
+      // Atualizar dados com base na resposta da ação ou refazendo o fetch
+      const updatedNegDetails = actionResponse.data.dados || actionResponse.data; // Supondo que a API retorna os detalhes atualizados
+      
+      setNegotiationDetails(updatedNegDetails);
+      const newHistory = updatedNegDetails.historico || [];
       setNegotiationHistory(newHistory);
-      
-      const contractRes = await axios.get(`${API_BASE_URL}/contrato/${contractId}`, { headers: { 'Authorization': `Bearer ${token}` } });
-      const updatedDetails = contractRes.data.dados || contractRes.data;
-      setContractDetails(updatedDetails);
-
-      updateNegotiationState(newHistory, currentUserRole, updatedDetails.status_contrato);
+      updateNegotiationState(newHistory, currentUserRole, updatedNegDetails.status_negociacao);
       setCurrentOfferInput('');
+
+      // Se a negociação foi aceita e o backend retornou o ID do contrato criado:
+      // if (updatedNegDetails.status_negociacao === 'ACEITA' && updatedNegDetails.contrato_criado_id) {
+      //   navigate(`/contrato/${updatedNegDetails.contrato_criado_id}`); // Navega para a página do contrato
+      // }
 
     } catch (err) {
       console.error(`Erro ao ${actionType}:`, err);
       setError(err.response?.data?.error || `Falha ao ${actionType}.`);
-       if (err.response?.status === 401 || err.response?.status === 422) {
+       if (err.response?.status === 401 || err.response?.status === 403 || err.response?.status === 422) {
             if(desconectarCarteira) desconectarCarteira();
             navigate('/');
         }
@@ -183,32 +198,41 @@ function Pagina_Negociacao_Contrato() {
     }
   };
 
-  if (loading && !contractDetails) return <div className="negotiation-container"><p>Carregando dados da negociação...</p></div>;
+  // Ajustar as condições de renderização de carregamento/erro
+  if (loading && !negotiationDetails && !error) return <div className="negotiation-container"><p>Carregando dados da negociação...</p></div>;
   if (error) return <div className="negotiation-container"><p className="status-message" style={{backgroundColor: '#ffebee', color: '#c62828'}}>Erro: {error}</p></div>;
-  if (!contractDetails) return <div className="negotiation-container"><p>Contrato não encontrado.</p></div>;
-  if (!currentUserRole) return <div className="negotiation-container"><p className="status-message">Verificando seu papel no contrato...</p></div>;
+  if (!negotiationDetails && !loading) return <div className="negotiation-container"><p>Detalhes da negociação não encontrados.</p></div>;
+  if (!currentUserRole && !loading) return <div className="negotiation-container"><p className="status-message">Verificando seu papel na negociação...</p></div>;
+
 
   const lastOfferByOtherParty = negotiationHistory.length > 0 && negotiationHistory[negotiationHistory.length - 1].actorRole !== currentUserRole;
+  const firstProposalByClient = negotiationHistory.length > 0 && negotiationHistory[0].actorRole === 'client' ? negotiationHistory[0] : null;
 
   return (
     <div className="negotiation-container">
-      <h1 className="negotiation-title">Negociação do Contrato</h1>
-      <p>ID do Contrato: {contractId}</p>
+      <h1 className="negotiation-title">Proposta de Negociação</h1>
+      <p>ID da Negociação: {negotiationId}</p>
+      {negotiationDetails && negotiationDetails.address_cliente && negotiationDetails.address_prestador && (
+        <>
+          <p style={{fontSize: '0.9em', color: '#555'}}>Cliente: {negotiationDetails.address_cliente}</p>
+          <p style={{fontSize: '0.9em', color: '#555'}}>Prestador: {negotiationDetails.address_prestador}</p>
+        </>
+      )}
       <p>Seu Papel: {currentUserRole === 'client' ? 'Cliente' : 'Freelancer'}</p>
 
       {statusMessage && <div className={isMyTurn || isFinalized ? "status-message" : "waiting-message"}>{statusMessage}</div>}
 
-      {/* Proposta Inicial do Cliente (para Freelancer ver) */}
-      {currentUserRole === 'freelancer' && contractDetails?.valor_inicial && negotiationHistory.length <= 1 && (
+      {currentUserRole === 'freelancer' && firstProposalByClient && isMyTurn && (
         <div className="client-initial-proposal">
-          <h2 className="proposal-title">Proposta Inicial do Cliente</h2>
-          <p><strong>Valor Proposto:</strong> R$ {parseFloat(contractDetails.valor_inicial).toFixed(2)}</p>
-          <p><strong>Descrição:</strong> {contractDetails.descricao_servico || 'Não especificado'}</p>
+          <h2 className="proposal-title">Proposta Recebida do Cliente</h2>
+          <p><strong>Valor Proposto:</strong> R$ {parseFloat(firstProposalByClient.valor).toFixed(2)}</p>
+          {/* Adicionar outros campos da proposta inicial se existirem no histórico */}
+          {/* Ex: <p><strong>Descrição:</strong> {firstProposalByClient.descricao_servico || 'Não especificado'}</p> */}
         </div>
       )}
 
       <div className="negotiation-history">
-        <h2 className="history-title">Histórico de Negociações</h2>
+        <h2 className="history-title">Histórico de Propostas</h2>
         {negotiationHistory.length === 0 ? (
           <p className="history-empty">Nenhuma proposta ainda.</p>
         ) : (
@@ -220,6 +244,7 @@ function Pagina_Negociacao_Contrato() {
               >
                 <strong>{entry.actorRole === 'client' ? 'Cliente' : 'Freelancer'}:</strong>
                 {entry.type === 'PROPOSTA' && ` Propôs R$ ${parseFloat(entry.valor).toFixed(2)}`}
+                {/* Adicionar outros campos da proposta se existirem no histórico */}
                 {entry.type === 'CONTRA_PROPOSTA' && ` Contrapropôs R$ ${parseFloat(entry.valor).toFixed(2)}`}
                 {entry.type === 'ACEITE' && ` Aceitou a proposta de R$ ${parseFloat(entry.valor_aceito || entry.valor).toFixed(2)}`}
                 {entry.type === 'REJEICAO' && ` Rejeitou a proposta.`}
@@ -242,6 +267,15 @@ function Pagina_Negociacao_Contrato() {
               step="0.01"
               min="0"
             />
+            {/* Adicionar aqui inputs para descrição, prazo, etc., se for a proposta inicial do cliente */}
+            {/* Exemplo:
+            {negotiationHistory.length === 0 && currentUserRole === 'client' && (
+              <>
+                <textarea placeholder="Descrição do serviço" />
+                <input type="text" placeholder="Prazo estimado" />
+              </>
+            )}
+            */}
             <button
               className="send-button"
               onClick={() => submitNegotiationAction('propose')}
@@ -274,10 +308,14 @@ function Pagina_Negociacao_Contrato() {
       {isFinalized && (
          <div className="negotiation-finalized">
            {statusMessage}
+           {/* Se a negociação foi aceita, você pode adicionar um link para o contrato criado */}
+           {/* {negotiationDetails?.status_negociacao === 'ACEITA' && negotiationDetails?.contrato_criado_id && (
+             <p><a href={`/contrato/${negotiationDetails.contrato_criado_id}`}>Ver Contrato</a></p>
+           )} */}
          </div>
        )}
     </div>
   );
 }
 
-export default Pagina_Negociacao_Contrato; 
+export default PaginaNegociacao; // Renomeado
