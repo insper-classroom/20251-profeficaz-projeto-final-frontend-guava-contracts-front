@@ -18,6 +18,11 @@ function PerfilUsuario() {
   const [addressFreela, setAddressFreela] = useState('');
   const [addressCliente, setAddressCliente] = useState('');
   const [contratos, setContratos] = useState([]);
+  const [contratosCliente, setContratosCliente] = useState([]);
+  const [contratosPrestador, setContratosPrestador] = useState([]);
+  const [mostrarContratosPrestador, setMostrarContratosPrestador] = useState(true);
+  const [tabPrestador, setTabPrestador] = useState(true);
+  const [tabCliente, setTabCliente] = useState(false);
   const [usuarioData, setUsuarioData] = useState({
     nome: "",
     profissao: "",
@@ -45,7 +50,40 @@ function PerfilUsuario() {
   const [allCategories, setAllCategories] = useState([]);
 
 
+  const contratosArbitrarios = {
+
+    "contratos_como_cliente": [
+    
+      {
+      "_id": "680d4115b46ac3c723fc3535",
+      "valor": 150,
+      "status": "In progress",
+      "servico": "Aula de Cálculo",
+      "address": {"cliente": "alksdfihq wefhqwd fhiuyewg o", "prestador": "qlwkef hndsh fawfhcmqwch"},
+      "address_contrato": "0x1B72b45A9Af233f2a7b2AEd4a56E1E2B49d1594E"
+    
+      }
+    ], 
+    "contratos_como_prestador": [
+    
+      {
+      "_id": "680d4115b46ac3c723fc3535",
+      "valor": 150,
+      "status": "Pendente",
+      "servico": "Aula de Cálculo",
+      "address": {"cliente": "alksdfihq wefhqwd fhiuyewg o", "prestador": "qlwkef hndsh fawfhcmqwch"},
+      "address_contrato": "0x1B72b45A9Af233f2a7b2AEd4a56E1E2B49d1594E"
+    
+      }
+    ]};
+
+
   const toggleOverlayUsuario = () => setOverlayUsuario(!overlayUsuario);
+  const toggleMostrarContratos = () => {
+    setMostrarContratosPrestador(!mostrarContratosPrestador)
+    setTabPrestador(!tabPrestador);
+    setTabCliente(!tabCliente);
+  };
 
   const formatarEndereco = (endereco) => {
     if (!endereco) return '';
@@ -108,21 +146,27 @@ function PerfilUsuario() {
       if (!userAddress) return;
       try {
         const response = await axios.get(`${API_BASE_URL}/contratos/usuario?address=${userAddress}`, {
-           headers: { 'Authorization': `Bearer ${token}` }
+          headers: { 'Authorization': `Bearer ${token}` }
         });
         if (isMounted) {
+
+          console.log(response.data.contratos_como_prestador);
+          setContratosCliente( response.data.contratos_como_cliente || []);
+          console.log(contratosArbitrarios.contratos_como_cliente);
+          setContratosPrestador( response.data.contratos_como_prestador || []);
+          console.log(contratosArbitrarios.contratos_como_prestador);
           setContratos(response.data.contratos || response.data.dados || response.data || []);
         }
       } catch (error) {
         if (isMounted) {
           console.error("Erro ao buscar contratos:", error.response?.data || error.message);
-           setErrorPage(prev => prev ? `${prev}\nErro ao carregar contratos.` : "Erro ao carregar contratos.");
+          setErrorPage(prev => prev ? `${prev}\nErro ao carregar contratos.` : "Erro ao carregar contratos.");
         }
       }
     };
 
     const fetchAllCategories = async () => {
-      if (!isMounted) return;
+      if (!isMounted) return response.data.contratos_como_prestador;
       try {
         const response = await axios.get(`${API_BASE_URL}/categoria`, {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -211,7 +255,7 @@ function PerfilUsuario() {
       const response = await axios.put(`${API_BASE_URL}/perfilusuario`, payload, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      
+
       const updatedProfile = response.data.perfil || response.data;
 
       setUsuarioData(prev => ({
@@ -264,7 +308,7 @@ function PerfilUsuario() {
   }
 
   if (errorPage && !loading) {
-     return (
+    return (
       <>
         <Navbar />
         <div className="container_pagina_perfil_error">{errorPage}</div>
@@ -276,29 +320,27 @@ function PerfilUsuario() {
   return (
     <>
       {overlayUsuario && (
-      <div className="modal">
-        <div onClick={toggleOverlayUsuario} className="overlay-perfil"></div>
-        <div className="modal-content-perfil">
-          <h2>Detalhes do Contrato</h2>
-          <div className="container_descricao_contrato">
-            <p><strong>ID do Contrato:</strong> {addressContrato}</p>
-            <p><strong>Cliente:</strong> {formatarEndereco(addressCliente)}</p>
-            <p><strong>Freelancer:</strong> {formatarEndereco(addressFreela)}</p>
-            {/* You can add more contract details here, e.g., status, valor */}
-          </div>
+      <>
+        <div className="overlay"></div>
+        <div className="modal">
 
-          <div className='container_botoes_contrato'>
-            <button onClick={handleDepositar} className="botao_opcao_contrato">Depositar Fundos</button>
-            {/* TODO: Implement and add other contract action buttons and their handlers below */}
-            {/* Example:
-            <button onClick={handleConfirmarRecebimento} className="botao_opcao_contrato">Confirmar Recebimento</button>
-            <button onClick={handleFinalizarServico} className="botao_opcao_contrato">Finalizar Serviço</button>
-            <button onClick={handleCancelarContrato} className="botao_opcao_contrato botao_cancelar_contrato_modal">Cancelar Contrato</button>
-            */}
+          <div onClick={toggleOverlayUsuario} className="overlay-perfil"></div>
+          <div className="modal-content-perfil">
+            <h2>Detalhes do Contrato</h2>
+            <div className="container_descricao_contrato">
+              <p><strong>ID do Contrato:</strong> {addressContrato}</p>
+              <p><strong>Cliente:</strong> {formatarEndereco(addressCliente)}</p>
+              <p><strong>Freelancer:</strong> {formatarEndereco(addressFreela)}</p>
+              {/* You can add more contract details here, e.g., status, valor */}
+            </div>
+
+            <div className='container_botoes_contrato'>
+              <button onClick={handleDepositar} className="botao_opcao_contrato">Depositar Fundos</button>
+            </div>
+            <button onClick={toggleOverlayUsuario} className="botao_fechar_modal_perfil">Fechar</button>
           </div>
-          <button onClick={toggleOverlayUsuario} className="botao_fechar_modal_perfil">Fechar</button>
         </div>
-      </div>
+        </>
       )}
       <Navbar />
       <div className="container_pagina_perfil">
@@ -321,15 +363,15 @@ function PerfilUsuario() {
           <div className="detalhes_perfil">
             {isEditing ? (
               <div className="edit-profile-form"> <div className="form-group"> <label htmlFor="nome">Nome:</label>
-                  <input
-                    type="text"
-                    id="nome"
-                    name="nome"
-                    value={editFormData.nome}
-                    onChange={handleEditFormChange}
-                    placeholder="Seu nome (opcional)"
-                  />
-                </div>
+                <input
+                  type="text"
+                  id="nome"
+                  name="nome"
+                  value={editFormData.nome}
+                  onChange={handleEditFormChange}
+                  placeholder="Seu nome (opcional)"
+                />
+                perfil </div>
                 <div className="form-group">
                   <label htmlFor="profissao">Profissão:</label>
                   <input
@@ -370,8 +412,8 @@ function PerfilUsuario() {
                         </div>
                       ))
                     ) : (
-                      <p>Carregando categorias...</p>
-                    )}
+                        <p>Carregando categorias...</p>
+                      )}
                   </div>
                 </div>
                 {editError && <p className="edit-error-message">{editError}</p>}
@@ -385,56 +427,64 @@ function PerfilUsuario() {
                 </div>
               </div>
             ) : (
-              <>
-                <p id="nome" className="desc_perfil">
-                  {(usuarioData.nome && usuarioData.nome.trim() !== "") ? usuarioData.nome : formatarEndereco(usuarioData.address)}
-                </p>
-                <p className="desc_perfil">Profissão: {usuarioData.profissao}</p>
-                <p className="desc_perfil">Tempo de atuação: {usuarioData.tempo_atuacao}</p>
-                <p className="desc_perfil">Descrição: {usuarioData.descricao}</p>
-                <div className="user-categories-view">
-                  <p className="desc_perfil"><strong>Categorias de Serviço:</strong></p>
-                  {usuarioData.categorias_servico && usuarioData.categorias_servico.length > 0 && allCategories.length > 0 ? (
-                    <ul className="user-categories-list">
-                      {usuarioData.categorias_servico.map(catId => {
-                        const category = allCategories.find(c => c._id === catId);
-                        return category ? <li key={catId} className="user-category-item">{category.Name}</li> : null;
-                      })}
-                    </ul>
-                  ) : (
-                    <p className="desc_perfil_item">Nenhuma categoria selecionada.</p>
-                  )}
-                </div>
-                <p className="desc_perfil">Membro desde: {usuarioData.created_at ? new Date(usuarioData.created_at).toLocaleDateString() : 'N/A'}</p>
-                <Avaliacao avaliacao={usuarioData.avaliacao} />
-                <button onClick={handleEditToggle} className="edit-profile-button">
-                  Editar Perfil
-                </button>
-              </>
-            )}
+                <>
+                  <p id="nome" className="desc_perfil">
+                    {(usuarioData.nome && usuarioData.nome.trim() !== "") ? usuarioData.nome : formatarEndereco(usuarioData.address)}
+                  </p>
+                  <p className="desc_perfil">Profissão: {usuarioData.profissao}</p>
+                  <p className="desc_perfil">Tempo de atuação: {usuarioData.tempo_atuacao}</p>
+                  <p className="desc_perfil">Descrição: {usuarioData.descricao}</p>
+                  <div className="user-categories-view">
+                    <p className="desc_perfil"><strong>Categorias de Serviço:</strong></p>
+                    {usuarioData.categorias_servico && usuarioData.categorias_servico.length > 0 && allCategories.length > 0 ? (
+                      <ul className="user-categories-list">
+                        {usuarioData.categorias_servico.map(catId => {
+                          const category = allCategories.find(c => c._id === catId);
+                          return category ? <li key={catId} className="user-category-item">{category.Name}</li> : null;
+                        })}
+                      </ul>
+                    ) : (
+                        <p className="desc_perfil_item">Nenhuma categoria selecionada.</p>
+                      )}
+                  </div>
+                  <p className="desc_perfil">Membro desde: {usuarioData.created_at ? new Date(usuarioData.created_at).toLocaleDateString() : 'N/A'}</p>
+                  <Avaliacao avaliacao={usuarioData.avaliacao} />
+                  <button onClick={handleEditToggle} className="edit-profile-button">
+                    Editar Perfil
+                  </button>
+                </>
+              )}
           </div>
         </div>
 
         <div className="container_portifolio">
           <div className='container_titulo_portifolio'>
+            <div className="parte_titulo">
             <p className="titulo_portifolio">Meus Contratos</p>
+            </div>
+            <div className="tabs_contratos">
+              <button className={`tab_prestador_${tabPrestador}`} onClick={() => {toggleMostrarContratos()}}>Como Prestador</button>
+              <button className={ `tab_cliente_${tabCliente}` } onClick={() => {toggleMostrarContratos()}}>Como Cliente</button>
+            </div>
           </div>
-          {contratos && contratos.length > 0 ? (
-            contratos.map(contrato => (
+          {mostrarContratosPrestador ? 
+
+          (contratosPrestador && contratosPrestador.length > 0 ? (
+            contratosPrestador.map(contrato => (
               <div className="lista_contratos" key={contrato._id || contrato.id_contrato}>
                 <div className="contrato">
                   <div className="info_contrato">
-                    <p className="titulo_contrato">{contrato.titulo || "Contrato sem título"}</p>
-                    <p className="desc_contrato_item">Status: {contrato.status || "N/A"}</p>
-                    <p className="desc_contrato_item">Valor: {contrato.valor || "N/A"} ETH</p>
+                    <p className="titulo_contrato">{formatarEndereco(contrato.address_contrato)}</p>
+                    <p className="desc_contrato_item">Status: {contrato.status}</p>
+                    <p className="desc_contrato_item">Valor: {contrato.valor} ETH</p>
                   </div>
                   <div className="botoes">
                     <button onClick={() => {
-                       toggleOverlayUsuario();
-                       setAddressContrato(contrato.id_contrato || contrato._id);
-                       setAddressCliente(contrato.address_cliente || (contrato.address && contrato.address.id_cliente));
-                       setAddressFreela(contrato.address_prestador || (contrato.address && contrato.address.id_freela));
-                       }} className="botao_visualizar_contrato">
+                      toggleOverlayUsuario();
+                      setAddressContrato(contrato.id_contrato || contrato._id);
+                      setAddressCliente(contrato.address_cliente || (contrato.address && contrato.address.id_cliente));
+                      setAddressFreela(contrato.address_prestador || (contrato.address && contrato.address.id_freela));
+                    }} className="botao_visualizar_contrato">
                       Visualizar Detalhes
                     </button>
                   </div>
@@ -442,8 +492,41 @@ function PerfilUsuario() {
               </div>
             ))
           ) : (
-            <p>Nenhum contrato encontrado.</p>
-          )}
+            <>
+              <div className="container_sem_contrato">
+              <p className="sem_contrato">Você ainda não tem nenhum contrato.</p>
+              <a  className="botao_home_page" href="/">Home</a>
+              </div>
+            </>
+            ))
+
+          : (contratosCliente && contratosCliente.length > 0 ? (
+            contratosCliente.map(contrato => (
+              <div className="lista_contratos" key={contrato._id || contrato.id_contrato}>
+                <div className="contrato">
+                  <div className="info_contrato">
+                    <p className="titulo_contrato">{formatarEndereco(contrato.address_contrato)}</p>
+                    <p className="desc_contrato_item">Status: {contrato.status}</p>
+                    <p className="desc_contrato_item">Valor: {contrato.valor} ETH</p>
+                  </div>
+                  <div className="botoes">
+                    <button onClick={() => {
+                      toggleOverlayUsuario();
+                      setAddressContrato(contrato.id_contrato || contrato._id);
+                      setAddressCliente(contrato.address_cliente || (contrato.address && contrato.address.id_cliente));
+                      setAddressFreela(contrato.address_prestador || (contrato.address && contrato.address.id_freela));
+                    }} className="botao_visualizar_contrato">
+                      Visualizar Detalhes
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+              <p className="titulo_portifolio">Você ainda não tem nenhum contrato.</p>
+
+            ))}
+          
         </div>
       </div>
     </>
