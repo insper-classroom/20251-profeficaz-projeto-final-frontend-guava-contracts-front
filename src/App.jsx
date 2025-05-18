@@ -29,7 +29,7 @@ function App() {
         <Route path="/profissionais" element={<ProfissionaisPage />} />
         <Route path="/servicos" element={<ServicosPage />} />
         <Route path="/avaliacao" element={<AvaliacaoPage />} />
-        <Route path="/negociar" element={<Pagina_Negociacao_Contrato />} />
+        <Route path="/negociar/:negotiationId" element={<Pagina_Negociacao_Contrato />} />
       </Routes>
     </ContaProvider>
   );

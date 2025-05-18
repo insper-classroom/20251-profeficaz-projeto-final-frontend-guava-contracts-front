@@ -30,10 +30,11 @@ function PaginaNegociacao() {
     // A verificação de contaConectada permanece
     if (!contaConectada) {
       setLoading(false);
-      navigate('/'); 
+      // navigate('/'); 
       return;
     }
     // Adicionar verificação para negotiationId
+    console.log("ID da Negociação:", negotiationId);
     if (!negotiationId) {
         setLoading(false);
         setError("ID da negociação não encontrado na URL.");
@@ -46,7 +47,7 @@ function PaginaNegociacao() {
       const token = localStorage.getItem(AUTH_TOKEN_KEY);
       if (!token) {
         if (desconectarCarteira) desconectarCarteira();
-        navigate('/');
+        // navigate('/');
         return;
       }
 
@@ -54,7 +55,7 @@ function PaginaNegociacao() {
         // 1. Buscar Detalhes da Negociação (incluindo partes e histórico)
         // O backend precisa de um endpoint que retorne os detalhes da negociação,
         // incluindo quem é o cliente, quem é o prestador, e o histórico.
-        const negDetailsRes = await axios.get(`${API_BASE_URL}/negociacao/${negotiationId}/detalhes`, {
+        const negDetailsRes = await axios.get(`${API_BASE_URL}/negociacao/${negotiationId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -84,7 +85,7 @@ function PaginaNegociacao() {
         setError(err.response?.data?.error || err.message || "Erro ao carregar dados.");
         if (err.response?.status === 401 || err.response?.status === 403 || err.response?.status === 422) {
             if(desconectarCarteira) desconectarCarteira();
-            navigate('/');
+            // navigate('/');
         }
       } finally {
         setLoading(false);
@@ -191,7 +192,7 @@ function PaginaNegociacao() {
       setError(err.response?.data?.error || `Falha ao ${actionType}.`);
        if (err.response?.status === 401 || err.response?.status === 403 || err.response?.status === 422) {
             if(desconectarCarteira) desconectarCarteira();
-            navigate('/');
+            // navigate('/');
         }
     } finally {
       setLoading(false);
