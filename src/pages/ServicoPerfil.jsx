@@ -78,20 +78,11 @@ function ServicoPerfil({servico_id}) {
     return texto;
   };
 
-  const [servico, setServico] = useState(null);
+  const [servico, setServico] = useState('');
 
   useEffect(() => {
-    const fetchServico = async () => {
-      try {
-        const response = await axios.get(`http://127.0.0.1:5000/usuario/servicos/${servico_id}`);
-        console.log('Resposta da API de serviço:', response.data);
-        setServico(response.data);
-      } catch (error) {
-        console.error('Erro ao buscar o serviço:', error);
-      }
-    };
-  
-    fetchServico();
+    setServico(servico_id);
+    console.log(servico_id)
   }, [servico_id]);
 
   const handleAssinarContrato = async () => {
@@ -152,15 +143,12 @@ function ServicoPerfil({servico_id}) {
   return (
     <>
       {!servico ? (
-        <div className=""></div>
+        <div className="">Carregando...</div>
       ) : (
         <>
           <div className="servico">
             <div className="info_servico">
-              <p className="titulo_servico">{servico.title}</p>
-              <p className="detalhes_servico">
-                {servico.desc ? limitarTexto(servico.desc, 100) : 'Descrição não disponível'}
-              </p>
+              <p className="titulo_servico">{servico}</p>
               <button 
                 className="botao_detalhes"
                 onClick={() => setShowDetalhes(true)}
@@ -184,7 +172,7 @@ function ServicoPerfil({servico_id}) {
             <div className="overlay">
               <div className="modal_detalhes">
                 <div className="modal_header">
-                  <h2>{servico.title}</h2>
+                  <h2>{servico_id}</h2>
                 </div>
                 <div className="modal_content">
                   <p>{servico.desc ? servico.desc : "Não informado"}</p>

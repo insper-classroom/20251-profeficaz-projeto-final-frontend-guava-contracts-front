@@ -523,10 +523,14 @@ function PerfilUsuario() {
               </div>
             ))
           ) : (
-              <p className="titulo_portifolio">Você ainda não tem nenhum contrato.</p>
+                <>
+                  <div className="container_sem_contrato">
+                    <p className="sem_contrato">Você ainda não tem nenhum contrato.</p>
+                    <a  className="botao_home_page" href="/">Home</a>
+                  </div>
+                </>
+              ))}
 
-            ))}
-          
         </div>
       </div>
     </>
