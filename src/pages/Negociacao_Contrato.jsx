@@ -156,6 +156,8 @@ function PaginaNegociacao() {
           setLoading(false);
           return;
         }
+        negotiationHistory.push(payload.proposta);
+        console.log("Histórico atualizado:", negotiationHistory);
         // Se for a primeira proposta do cliente, você pode querer adicionar outros campos ao payload:
         // if (negotiationHistory.length === 0 && currentUserRole === 'client') {
         //   payload.descricao_servico = "Descrição da proposta inicial aqui"; // Exemplo
@@ -179,12 +181,12 @@ function PaginaNegociacao() {
       const actionResponse = await axios.put(`${endpoint}/${payload.proposta}`, payload, { headers: { 'Authorization': `Bearer ${token}` } });
 
       // Atualizar dados com base na resposta da ação ou refazendo o fetch
-      const updatedNegDetails = actionResponse.data.dados || actionResponse.data; // Supondo que a API retorna os detalhes atualizados
+      const updatedNegDetails = actionResponse.data;
+      console.log("Resposta da Ação:", updatedNegDetails);
       
       setNegotiationDetails(updatedNegDetails);
-      const newHistory = updatedNegDetails.historico || [];
-      setNegotiationHistory(newHistory);
-      updateNegotiationState(newHistory, currentUserRole, updatedNegDetails.status_negociacao);
+      console.log("Novo Histórico:", negotiationHistory);
+      updateNegotiationState(negotiationHistory, currentUserRole, updatedNegDetails.status_negociacao);
       setCurrentOfferInput('');
 
       // Se a negociação foi aceita e o backend retornou o ID do contrato criado:
@@ -248,12 +250,12 @@ function PaginaNegociacao() {
                 key={index} 
                 className={`history-item ${entry.actorRole === 'client' ? 'item-client' : 'item-freelancer'} ${entry.type === 'ACEITE' ? 'item-accepted' : ''} ${entry.type === 'REJEICAO' ? 'item-rejected' : ''}`}
               >
-                <strong>{entry.actorRole === 'client' ? 'Cliente' : 'Freelancer'}:</strong>
-                {entry.type === 'PROPOSTA' && ` Propôs R$ ${parseFloat(entry.valor).toFixed(2)}`}
-                {/* Adicionar outros campos da proposta se existirem no histórico */}
-                {entry.type === 'CONTRA_PROPOSTA' && ` Contrapropôs R$ ${parseFloat(entry.valor).toFixed(2)}`}
-                {entry.type === 'ACEITE' && ` Aceitou a proposta de R$ ${parseFloat(entry.valor_aceito || entry.valor).toFixed(2)}`}
-                {entry.type === 'REJEICAO' && ` Rejeitou a proposta.`}
+                <strong>{currentUserRole === 'client' ? 'Cliente' : 'Freelancer'}:</strong>
+                {index === 0 && ` Propôs R$ ${parseInt(entry)}`}
+                {index === 1 && (<p>Contrapropôs R$ {parseInt(entry)}</p>)}
+                {index === 2 && (<p>Valor final sugerido R$ {parseInt(entry)}</p>)}
+                {/* ACEITE -> navigate pra parte de contrato*/}
+                {/* REJEICAO -> navigate pra pagina anterior*/}
               </li>
             ))}
           </ul>
