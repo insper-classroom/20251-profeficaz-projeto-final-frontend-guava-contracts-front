@@ -3,9 +3,9 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ContaContext } from '../context/ContaContext';
-import '../styles/Negociacao_Contrato.css'; // Atualize para o novo nome do arquivo CSS
+import '../styles/Negociacao_Contrato.css';
 
-const API_BASE_URL = 'http://127.0.0.1:5000'; // Seu endereço de API
+const API_BASE_URL = 'http://127.0.0.1:5000';
 const AUTH_TOKEN_KEY = 'authToken';
 
 function Pagina_Negociacao_Contrato() {
@@ -43,14 +43,14 @@ function Pagina_Negociacao_Contrato() {
       }
 
       try {
-        // 1. Fetch Contract Details
+        // 1. Buscar Detalhes do Contrato
         const contractRes = await axios.get(`${API_BASE_URL}/contrato/${contractId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        const details = contractRes.data.dados || contractRes.data; // Ajuste conforme sua API
+        const details = contractRes.data.dados || contractRes.data;
         setContractDetails(details);
 
-        // 2. Determine User Role
+        // 2. Determinar Papel do Usuário
         let role = null;
         if (details.address_cliente && details.address_cliente.toLowerCase() === contaConectada.toLowerCase()) {
           role = 'client';
@@ -63,14 +63,14 @@ function Pagina_Negociacao_Contrato() {
           throw new Error("Você não faz parte deste contrato.");
         }
 
-        // 3. Fetch Negotiation History
+        // 3. Buscar Histórico de Negociação
         const historyRes = await axios.get(`${API_BASE_URL}/contrato/${contractId}/negociacao`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        const history = historyRes.data.historico || historyRes.data.dados || []; // Ajuste conforme sua API
+        const history = historyRes.data.historico || historyRes.data.dados || []; 
         setNegotiationHistory(history);
         
-        // 4. Determine Turn, Status, and Finalization
+        // 4. Determinar Turno, Status e Finalização
         updateNegotiationState(history, role, details.status_contrato);
 
       } catch (err) {
@@ -142,7 +142,7 @@ function Pagina_Negociacao_Contrato() {
       const payload = { role: currentUserRole };
 
       if (actionType === 'propose') {
-        endpoint += 'negociar'; // Ou o endpoint de proposta/contraproposta
+        endpoint += 'negociar';
         payload.valor = parseFloat(currentOfferInput);
         if (isNaN(payload.valor) || payload.valor <= 0) {
           alert("Valor da proposta inválido.");
@@ -160,7 +160,6 @@ function Pagina_Negociacao_Contrato() {
 
       await axios.post(endpoint, payload, { headers: { 'Authorization': `Bearer ${token}` } });
       
-      // Refetch history and contract details to update state
       const historyRes = await axios.get(`${API_BASE_URL}/contrato/${contractId}/negociacao`, { headers: { 'Authorization': `Bearer ${token}` } });
       const newHistory = historyRes.data.historico || historyRes.data.dados || [];
       setNegotiationHistory(newHistory);
@@ -205,7 +204,6 @@ function Pagina_Negociacao_Contrato() {
           <h2 className="proposal-title">Proposta Inicial do Cliente</h2>
           <p><strong>Valor Proposto:</strong> R$ {parseFloat(contractDetails.valor_inicial).toFixed(2)}</p>
           <p><strong>Descrição:</strong> {contractDetails.descricao_servico || 'Não especificado'}</p>
-          {/* Adicionar prazo se disponível */}
         </div>
       )}
 
@@ -225,7 +223,6 @@ function Pagina_Negociacao_Contrato() {
                 {entry.type === 'CONTRA_PROPOSTA' && ` Contrapropôs R$ ${parseFloat(entry.valor).toFixed(2)}`}
                 {entry.type === 'ACEITE' && ` Aceitou a proposta de R$ ${parseFloat(entry.valor_aceito || entry.valor).toFixed(2)}`}
                 {entry.type === 'REJEICAO' && ` Rejeitou a proposta.`}
-                {/* Adicionar mais detalhes como descrição/prazo se vierem no histórico */}
               </li>
             ))}
           </ul>
@@ -276,7 +273,7 @@ function Pagina_Negociacao_Contrato() {
       
       {isFinalized && (
          <div className="negotiation-finalized">
-           {statusMessage} {/* Ou uma mensagem mais específica de finalização */}
+           {statusMessage}
          </div>
        )}
     </div>
