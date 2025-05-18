@@ -150,10 +150,10 @@ function PerfilUsuario() {
         });
         if (isMounted) {
 
-          // Mudar isso aqui depois para pegar os dados de verdade
-          setContratosCliente( contratosArbitrarios.contratos_como_cliente || []);
+          console.log(response.data.contratos_como_prestador);
+          setContratosCliente( response.data.contratos_como_cliente || []);
           console.log(contratosArbitrarios.contratos_como_cliente);
-          setContratosPrestador(contratosArbitrarios.contratos_como_prestador || []);
+          setContratosPrestador( response.data.contratos_como_prestador || []);
           console.log(contratosArbitrarios.contratos_como_prestador);
           setContratos(response.data.contratos || response.data.dados || response.data || []);
         }
@@ -166,7 +166,7 @@ function PerfilUsuario() {
     };
 
     const fetchAllCategories = async () => {
-      if (!isMounted) return;
+      if (!isMounted) return response.data.contratos_como_prestador;
       try {
         const response = await axios.get(`${API_BASE_URL}/categoria`, {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -492,8 +492,12 @@ function PerfilUsuario() {
               </div>
             ))
           ) : (
-              <p className="titulo_portifolio">Você ainda não tem nenhum contrato.</p>
-
+            <>
+              <div className="container_sem_contrato">
+              <p className="sem_contrato">Você ainda não tem nenhum contrato.</p>
+              <a  className="botao_home_page" href="/">Home</a>
+              </div>
+            </>
             ))
 
           : (contratosCliente && contratosCliente.length > 0 ? (
