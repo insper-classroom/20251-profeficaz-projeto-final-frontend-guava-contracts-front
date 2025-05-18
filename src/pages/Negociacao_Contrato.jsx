@@ -53,22 +53,21 @@ function PaginaNegociacao() {
 
       try {
         // 1. Buscar Detalhes da Negociação (incluindo partes e histórico)
-        // O backend precisa de um endpoint que retorne os detalhes da negociação,
-        // incluindo quem é o cliente, quem é o prestador, e o histórico.
         const negDetailsRes = await axios.get(`${API_BASE_URL}/negociacao/${negotiationId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
+        console.log("Detalhes da Negociação:", negDetailsRes.data);
         
-        const details = negDetailsRes.data.dados || negDetailsRes.data; // Ajuste conforme sua API
+        const details = negDetailsRes.data;
         setNegotiationDetails(details);
         const history = details.historico || [];
         setNegotiationHistory(history);
 
         // 2. Determinar Papel do Usuário com base nos detalhes da negociação
         let role = null;
-        if (details.address_cliente && details.address_cliente.toLowerCase() === contaConectada.toLowerCase()) {
+        if (details.cliente && details.cliente.toLowerCase() === contaConectada.toLowerCase()) {
           role = 'client';
-        } else if (details.address_prestador && details.address_prestador.toLowerCase() === contaConectada.toLowerCase()) {
+        } else if (details.prestador && details.prestador.toLowerCase() === contaConectada.toLowerCase()) {
           role = 'freelancer';
         }
         setCurrentUserRole(role);
