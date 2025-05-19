@@ -37,7 +37,7 @@ function PaginaPerfil() {
   console.log("ID do perfil:", id);
   const API_BASE_URL = 'http://127.0.0.1:5000'; // Adicione esta constante no início do componente
 
-  axios.get(`${API_BASE_URL}/usuario/${id}`)
+  axios.get(`api/usuario/${id}`)
     .then(async (response) => {
       console.log('Dados recebidos:', response.data);
       
@@ -53,7 +53,7 @@ function PaginaPerfil() {
         avaliacoesPendentes.map(async (endereco) => {
           try {
             // Usando a nova rota para buscar por endereço
-            const userResponse = await axios.get(`${API_BASE_URL}/usuario/endereco/${endereco}`);
+            const userResponse = await axios.get(`api/usuario/endereco/${endereco}`);
             console.log('Dados do usuário para avaliar:', userResponse.data);
             
             // Pegando o nome do array avaliado do usuário

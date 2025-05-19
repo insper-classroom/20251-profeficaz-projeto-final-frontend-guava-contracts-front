@@ -17,7 +17,7 @@ function Categoria () {
 
 
   useEffect(() => {
-    axios.get(`http://127.0.0.1:5000/categoria/servico/${id}`)
+    axios.get(`api/categoria/servico/${id}`)
       .then((response) => {
         
         setServicos(response.data)
@@ -28,7 +28,7 @@ function Categoria () {
 
 
   useEffect(() => {
-    axios.get(`http://127.0.0.1:5000/categorias/${id}`)
+    axios.get(`api/categorias/${id}`)
       .then((response) => {
 
         setNomeCategoria(response.data.Name)
