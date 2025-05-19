@@ -1,49 +1,52 @@
 .container_pagina_perfil {
-  padding: 4%;
+  padding: 2%;
   display: flex;
-  flex-direction: row;
-  gap: 5%
+  flex-direction: column;
+  gap: 2rem;
 }
 
 .container_perfil {
-  width: 20%;
-  height: 75vh;
+  width: 100%; 
+  max-width: 320px; 
+  margin-left: auto;
+  margin-right: auto;
+  height: auto;
+  min-height: 70vh; 
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5%;
+  gap: 1rem; 
   border: 2px solid rgba(194, 194, 194, 1);
   border-radius: 12px;
+  padding: 1rem; 
 }
 
-
 .container_portifolio {
-  width: 70%;
+  width: 100%;
   height: auto;
   background-color: white;
   border-radius: 10px;
   border: 2px solid rgba(194, 194, 194, 1);
   display: flex;
   flex-direction: column;
-
-  
 }
 
 .div_foto_perfil {
-  width: 90%;
-  height: 40%;
-  margin: 15% 5% 5% 5%;
+  width: 100%; 
+  max-width: 150px; 
+  height: auto; 
+  margin: 1rem 0; 
   display: flex;
   justify-content: center;
   align-items: center;
-  
 }
 
 .foto_perfil {
-  width: 35vh;
-  height: 35vh;
+  width: 150px; 
+  height: 150px;
   border-radius: 50%;
   background-color: rgba(0, 0, 0, 0.2);
+  object-fit: cover; 
 }
 
 .desc_perfil {
@@ -53,22 +56,157 @@
 }
 
 .detalhes_perfil {
-  width: 90%;
+  width: 100%;
+  padding: 0 0.5rem;
   height: auto;
   display: flex;
   flex-direction: column;
   gap:10px;
 }
 
+@media (min-width: 768px) {
+  .container_pagina_perfil {
+    flex-direction: row;
+    padding: 4%;
+    gap: 3%;
+    align-items: flex-start;
+  }
+  .container_perfil {
+    width: 30%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .container_portifolio {
+    width: 67%;
+  }
+}
+
 #nome {
   font-size: 1.9rem;
   font-weight: bolder;
-  padding: 0% 0% 3% 3%
+  padding: 0% 0% 3% 3%;
 }
 
 #descricao {
   padding: 0% 0% 3% 0%;
 }
 
+.lista_servicos {
+  width: 100%;
+  height: auto;
+}
 
+.avaliacoes-pendentes-button {
+  display: block;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.8rem;
+  background-color: #643ad7;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
 
+.avaliacoes-pendentes-button:hover {
+  background-color: #4d11a6;
+}
+
+.avaliacoes-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.avaliacao-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  border-left: 4px solid #643ad7;
+}
+
+.botao-avaliar {
+  background: #643ad7;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.botao-avaliar:hover {
+  background: #4d11a6;
+  transform: translateY(-2px);
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content-perfil {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+  z-index: 1001;
+}
+
+.overlay-perfil {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+/* Ajuste os estilos existentes do conteúdo do modal */
+.avaliacoes-lista {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 1rem;
+}
+
+.avaliacao-item {
+  margin-bottom: 1rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-left: 4px solid #643ad7;
+}
+
+.botao_fechar_modal_perfil {
+  width: 100%;
+  padding: 0.8rem;
+  margin-top: 1rem;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.botao_fechar_modal_perfil:hover {
+  background: #5a6268;
+}

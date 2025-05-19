@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import '../styles/AvaliacaoFreela.css';
+import { useNavigate } from 'react-router-dom';
 
 function AvaliacaoFreela() {
   const [nota, setNota] = useState(0);
   const [descricao, setDescricao] = useState('');
-
+  const navigate = useNavigate();
   const handleStarClick = (value) => {
     setNota(value);
   };
@@ -16,6 +17,7 @@ function AvaliacaoFreela() {
     alert('Avaliação enviada com sucesso!');
     setNota(0);
     setDescricao('');
+    navigate('/');
   };
 
   return (

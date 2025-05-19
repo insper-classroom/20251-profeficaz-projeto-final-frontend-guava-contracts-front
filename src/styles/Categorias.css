@@ -10,15 +10,16 @@
 
 .container_categorias {
   width: 100%;
-  height: 40vh;
+  height: auto;
   margin-top: 3%
   
 }
 
 .lista_categorias {
   width: 95%;
-  height: 25vh;
+  height: 200%;
   list-style: none;
+  flex-wrap: wrap;
   display: flex;
   flex-direction: row;
   justify-content: space-around;
@@ -26,15 +27,19 @@
 
 
 
+
 .categoria_link {
-  width: 20vh;
+  margin: 20px;
+  flex: 1 1 calc(25% - 1.5rem); /* até 4 por linha com gap */
+  min-width: 200px;
+  max-width: 250px;
   height: 20vh;
-  gap: 50px;
-  box-shadow: 1px 3px 7px rgb(107, 107, 107);
-  transition: box-shadow 0.21s ease;
   display: flex;
   justify-content: center;
   border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 1px 3px 7px rgb(107, 107, 107);
+  transition: box-shadow 0.21s ease;
 }
 
 .categoria_link:hover {
@@ -54,6 +59,7 @@
 }
 
 .titulo_da_categoria {
+  padding: 0px 1rem;
   margin-top: 10%;
   color: white;
   font-weight: 600;

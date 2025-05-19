@@ -1,0 +1,363 @@
+.servico {
+  padding: 2%;
+  width: 100%;
+  height: 10rem;
+  display: flex;
+  flex-direction: row;
+  border-bottom: 2px solid #bebebe;
+}
+
+.info_servico {
+  width: 75%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  border-right: 1px solid #BEBEBE;
+}
+
+.titulo_servico {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #404040;
+}
+
+.detalhes_servico {
+  color: #404040;
+}
+
+.botoes {
+  display: flex;
+  width: 25%;
+  padding: 1%;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.botao_fechar_contrato {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: #5700C9;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.botao_fechar_contrato:hover {
+  background: #4600a3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(87, 0, 201, 0.2);
+}
+
+.icon-contrato {
+  font-size: 1.2rem;
+}
+
+.botao_detalhes {
+  padding: 8px 16px;
+  background: none;
+  border: 2px solid #5700C9;
+  border-radius: 8px;
+  color: #5700C9;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 10px;
+  transition: all 0.3s ease;
+}
+
+.botao_detalhes:hover {
+  background: #5700C9;
+  color: white;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal_detalhes {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.modal_header {
+  padding: 20px 20px 0;
+}
+
+.modal_content {
+  padding: 20px;
+  overflow-y: auto;
+  flex-grow: 1;
+  line-height: 1.6;
+}
+
+.modal_footer {
+  padding: 20px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: center;
+}
+
+.modal_detalhes h2 {
+  color: #5700C9;
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+}
+
+.fechar_modal {
+  padding: 10px 24px;
+  background: #5700C9;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  font-size: 1rem;
+}
+
+.fechar_modal:hover {
+  background: #4600a3;
+}
+
+.modal_contrato {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 800px;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal_content_contrato {
+  padding: 20px;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.contrato_texto {
+  padding: 20px;
+  line-height: 1.8;
+  color: #333;
+}
+
+.parte_contrato {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f8f8f8;
+  border-radius: 8px;
+}
+
+.contrato_texto h3 {
+  color: #5700C9;
+  margin: 25px 0 15px;
+  font-size: 1.1rem;
+  
+}
+
+.data_contrato {
+  margin: 30px 0;
+  font-style: italic;
+}
+
+.assinaturas {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.assinaturas p {
+  border-top: 1px solid #ccc;
+  padding-top: 10px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.contrato_texto {
+  margin: 20px 0;
+  line-height: 1.6;
+  color: #404040;
+  position: relative;
+  background: white;
+  padding: 40px;
+  line-height: 1.6;
+}
+
+.contrato_texto p {
+  margin-bottom: 15px;
+}
+
+.termos_aceite {
+  margin: 20px 0;
+  padding: 20px;
+  border-top: 1px solid #eee;
+}
+
+.checkbox_container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #404040;
+  font-size: 0.9rem;
+}
+
+.checkbox_container input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.modal_footer {
+  padding: 20px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.botao_cancelar {
+  padding: 10px 24px;
+  background: #fff;
+  color: #5700C9;
+  border: 1px solid #5700C9;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.botao_cancelar:hover {
+  background: #f5f5f5;
+}
+
+.botao_assinar {
+  padding: 10px 24px;
+  background: #5700C9;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.botao_assinar:hover {
+  background: #4600a3;
+}
+
+.botao_assinar:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.sucesso-overlay {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.modal_sucesso {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  text-align: center;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.icon-sucesso {
+  font-size: 4rem;
+  color: #4CAF50;
+  margin-bottom: 20px;
+}
+
+.modal_sucesso h2 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 1.8rem;
+}
+
+.modal_sucesso p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sucesso-overlay.hiding {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.botao_download {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  margin-left: auto;
+}
+
+.botao_download:hover {
+  background: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);
+}
+
+.icon-download {
+  font-size: 1.1rem;
+}
+
+.modal_header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.contrato_texto.for-pdf {
+  height: auto !important;
+  overflow: visible !important;
+  position: relative !important;
+  transform: none !important;
+}
