@@ -7,9 +7,8 @@ import '../styles/Negociacao_Contrato.css';
 const API_BASE_URL = 'http://127.0.0.1:5000';
 const AUTH_TOKEN_KEY = 'authToken';
 
-// Renomear para refletir que é uma negociação, não necessariamente um contrato já existente
 function PaginaNegociacao() { 
-  const { negotiationId } = useParams(); // Mudado de id para negotiationId
+  const { negotiationId } = useParams();
   const navigate = useNavigate();
   const { contaConectada, desconectarCarteira } = useContext(ContaContext);
 
@@ -184,7 +183,6 @@ function PaginaNegociacao() {
       const updatedNegDetails = actionResponse.data;
       console.log("Resposta da Ação:", updatedNegDetails);
       
-      setNegotiationDetails(updatedNegDetails);
       console.log("Novo Histórico:", negotiationHistory);
       updateNegotiationState(negotiationHistory, currentUserRole, updatedNegDetails.status_negociacao);
       setCurrentOfferInput('');
@@ -201,6 +199,89 @@ function PaginaNegociacao() {
             if(desconectarCarteira) desconectarCarteira();
             // navigate('/');
         }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const criarContrato = async () => {
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    console.log("Token para /contrato:", token);
+    console.log("Dados da Negociação:", negotiationDetails);
+    if (!token) {
+      setError("Token de autenticação não encontrado. Por favor, faça login.");
+      setLoading(false);
+      return;
+    }
+
+    if (!negotiationDetails || !contaConectada) {
+      setError("Detalhes da negociação ou informações do usuário ausentes.");
+      setLoading(false);
+      return;
+    }
+    
+    let valorFinalAceito;
+    // Tenta pegar o valor da última proposta relevante no histórico
+    if (negotiationHistory && negotiationHistory.length > 0) {
+        const ultimaPropostaRelevante = negotiationHistory[negotiationHistory.length - 1];
+
+        if (ultimaPropostaRelevante) {
+            valorFinalAceito = negotiationHistory[negotiationHistory.length - 1]
+        }
+    }
+    // Fallback para currentOfferInput se for o valor que acabou de ser aceito e não está no histórico ainda
+    if ((!valorFinalAceito || valorFinalAceito <= 0) && parseFloat(currentOfferInput) > 0) {
+        valorFinalAceito = parseFloat(currentOfferInput);
+    }
+
+
+    if (!valorFinalAceito || valorFinalAceito <= 0) {
+      setError("Dados insuficientes para criar o contrato (prestador ou valor final inválido).");
+      console.log("Dados insuficientes:", negotiationDetails);
+      setLoading(false);
+      return;
+      
+    }
+    console.log("Detalhes da Negociação:", negotiationDetails);
+    const contractPayload = {
+      id_freela: negotiationDetails.prestador, // Endereço do prestador da negociação
+      valor: parseFloat(valorFinalAceito),       // O valor que foi aceito
+      servico: `Serviço negociado via ID ${negotiationId}` // Descrição do serviço
+    };
+
+    console.log("Payload para POST /contrato:", contractPayload);
+    setLoading(true);
+
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/contrato`, // URL
+        contractPayload,             // Data (corpo da requisição)
+        {                            // Config
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log("Resposta de POST /contrato:", response.data);
+      if (response.data.transaction) {
+        alert(`Contrato preparado para assinatura na blockchain! Detalhes: ${JSON.stringify(response.data.contract_data)}`);
+      } else {
+        setError(response.data.erro || "Falha ao preparar transação do contrato na blockchain.");
+      }
+    } catch (err) {
+      console.error("Erro ao chamar POST /contrato:", err);
+      let errorMessage = "Erro crítico ao criar contrato.";
+      if (err.response) {
+        errorMessage = err.response.data?.erro || err.response.data?.message || `Erro ${err.response.status}`;
+        if (err.response.status === 401) {
+          errorMessage = "Sua sessão expirou ou o token é inválido. Por favor, faça login novamente.";
+          if(desconectarCarteira) desconectarCarteira();
+          // navigate('/login'); // Considere redirecionar para o login
+        }
+      }
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -303,7 +384,8 @@ function PaginaNegociacao() {
               </button>
               <button
                 className="accept-button"
-                onClick={() => submitNegotiationAction('accept')}
+                // onClick={() => submitNegotiationAction('accept')}
+                onClick={() => criarContrato()}
                 disabled={loading}
               >
                 Aceitar Proposta Atual
