@@ -180,7 +180,7 @@ function PaginaPerfil() {
           {Array.isArray(perfil.servicos) && perfil.servicos.length > 0 ? (
             perfil.servicos.map((servico, index) => (
               <div className="lista_servicos" key={index}>
-                <ServicoPerfil servico_id={servico}/>
+                <ServicoPerfil servico_id={servico} id_prestador={id} />
               </div>   
             ))
           ) : (

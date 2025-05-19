@@ -1,82 +1,28 @@
 import { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FaFileContract, FaCheckCircle, FaDownload } from 'react-icons/fa';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import '../styles/ServicoPerfil.css';
 import { useEffect } from 'react';
 import axios from 'axios';
+import { ContaContext } from '../context/ContaContext';
+import { useContext } from 'react';
 
-function ServicoPerfil({servico_id}) {
+
+function ServicoPerfil({servico_id, id_prestador}) {
   const navigate = useNavigate();
   const [showDetalhes, setShowDetalhes] = useState(false);
   const [showContrato, setShowContrato] = useState(false);
   const [showSucesso, setShowSucesso] = useState(false);
   const [aceitarTermos, setAceitarTermos] = useState(false);
+  const {
+    contaConectada
+  } = useContext(ContaContext);
+
+
+
   const contratoRef = useRef();
-
-  // Fazer a função downloadPDF onde terei que capturar o conteudo 
-  // configurar as opções para html2canvas e ajustar os estilos do clone 
-  const handleDownloadPDF = async () => {
-    const element = contratoRef.current;
-    // preciso configurar o html2canvas
-    // nisso, tenho que adaptar scroll e etc. Vou usar o gpt pra ajudar nessa padronização:
-    const canvas = await html2canvas(element, {
-      // corigir o scroll para o pdf
-      scrollY: -window.scrollY,
-      // colocar uma altura total para o elemento 
-      windowHeight: element.scrollHeight,
-      height: element.scrollHeight,
-      scale: 1.5, // Aumenta a qualidade
-      useCORS: true,
-      logging: false,
-      onclone: (document) => {
-        // Ajusta o estilo do elemento clonado para garantir que todo conteúdo seja capturado
-        const clone = document.querySelector('.contrato_texto');
-        if (clone) {
-          clone.style.transform = '';
-          clone.style.height = 'auto';
-          clone.style.overflow = 'visible';
-          clone.style.position = 'relative';
-          clone.style.maxHeight = 'none';
-        }
-      }
-    });
-    // converter o canvas em img
-    const imgData = canvas.toDataURL('image/jpeg', 1.0);
-    // criar um novo documento PDF
-    const pdf = new jsPDF('p', 'pt', 'a4');
-    // calculo de dimensoes 
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const imgWidth = canvas.width;
-    const imgHeight = canvas.height;
-    // centralização do conteudo do pdf 
-    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-    const imgX = (pdfWidth - imgWidth * ratio) / 2;
-    const imgY = 30;
-
-    // beleza, ja peguei o conteudo do pdf de forma segura
-    // ajustei como será a geração do pdf
-    // preciso gerar esse pdf
-    pdf.addImage(
-      imgData, 
-      'JPEG', 
-      imgX, 
-      imgY, 
-      imgWidth * ratio, 
-      imgHeight * ratio
-    );
-    // salvar o arquivo
-    pdf.save('contrato.pdf');
-  };
-
-  const limitarTexto = (texto, limite) => {
-    if (texto.length > limite) {
-      return texto.substring(0, limite) + '...';
-    }
-    return texto;
-  };
 
   const [servico, setServico] = useState('');
 
@@ -140,6 +86,27 @@ function ServicoPerfil({servico_id}) {
     }
   };
 
+  async function postNegociacao() {
+    const url = 'http://127.0.0.1:5000/negociacao'; 
+    const data = {
+      cliente: contaConectada,
+      prestador: await axios.get(`http://127.0.0.1:5000/usuario/${id_prestador}`)
+        .then((response) => {
+          console.log(response.data)
+          return response.data.address
+        })
+        .catch((error) => console.error("erro ao buscar categorias", error))
+    };
+    const id_negociacao = await axios.post(url, data, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    console.log('Resposta do backend:', id_negociacao.data);
+      
+    navigate(`/negociar/${id_negociacao.data.id}`);
+  }
+
   return (
     <>
       {!servico ? (
@@ -149,20 +116,14 @@ function ServicoPerfil({servico_id}) {
           <div className="servico">
             <div className="info_servico">
               <p className="titulo_servico">{servico}</p>
-              <button 
-                className="botao_detalhes"
-                onClick={() => setShowDetalhes(true)}
-              >
-                Ver Detalhes
-              </button>
             </div>
             <div className="botoes">
-              <button 
+              <button
                 className="botao_fechar_contrato"
-                onClick={() => setShowContrato(true)}
+                onClick={() => postNegociacao()}
               >
                 <FaFileContract className="icon-contrato" />
-                <span>Fechar Contrato</span>
+                <span>Negociar</span>
               </button>
             </div>
           </div>
