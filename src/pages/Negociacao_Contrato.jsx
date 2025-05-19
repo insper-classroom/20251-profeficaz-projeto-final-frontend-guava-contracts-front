@@ -52,7 +52,7 @@ function PaginaNegociacao() {
 
       try {
         // 1. Buscar Detalhes da Negociação (incluindo partes e histórico)
-        const negDetailsRes = await axios.get(`api/negociacao/${negotiationId}`, {
+        const negDetailsRes = await axios.get(`negociacao/${negotiationId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         console.log("Detalhes da Negociação:", negDetailsRes.data);
@@ -138,7 +138,7 @@ function PaginaNegociacao() {
     setLoading(true);
     try {
       // Os endpoints agora são relativos à negociação
-      let endpoint = `api/negociacao/${negotiationId}/`; 
+      let endpoint = `negociacao/${negotiationId}/`; 
       const payload = { 
         role: currentUserRole,
         proposta: parseFloat(currentOfferInput),

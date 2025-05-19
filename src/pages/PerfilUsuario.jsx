@@ -104,7 +104,7 @@ function PerfilUsuario() {
 
     const fetchUserProfile = async () => {
       try {
-        const response = await axios.get(`api/perfilusuario`, {
+        const response = await axios.get(`perfilusuario`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (isMounted) {
@@ -145,7 +145,7 @@ function PerfilUsuario() {
     const fetchUserContracts = async (userAddress) => {
       if (!userAddress) return;
       try {
-        const response = await axios.get(`api/contratos/usuario?address=${userAddress}`, {
+        const response = await axios.get(`contratos/usuario?address=${userAddress}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (isMounted) {
@@ -168,7 +168,7 @@ function PerfilUsuario() {
     const fetchAllCategories = async () => {
       if (!isMounted) return response.data.contratos_como_prestador;
       try {
-        const response = await axios.get(`api/categoria`, {
+        const response = await axios.get(`categoria`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (isMounted && response.data && response.data.dados) {
@@ -252,7 +252,7 @@ function PerfilUsuario() {
         categorias_servico: selectedCategoryNames
       };
 
-      const response = await axios.put(`api/perfilusuario`, payload, {
+      const response = await axios.put(`perfilusuario`, payload, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -284,7 +284,7 @@ function PerfilUsuario() {
     const token = localStorage.getItem(AUTH_TOKEN_KEY);
     if (!token) { navigate('/'); return; }
     try {
-      const response = await axios.post(`api/contrato/${addressContrato}/depositar`,
+      const response = await axios.post(`contrato/${addressContrato}/depositar`,
         { address_cliente: addressCliente },
         { headers: { 'Authorization': `Bearer ${token}` } }
       );

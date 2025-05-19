@@ -29,7 +29,7 @@ function UsuariosPorServico () {
 
   useEffect(() => {
 
-    axios.get(`api/categorias/servicos/${title}`)
+    axios.get(`categorias/servicos/${title}`)
       .then((res) => {
         setUsuarios(res.data.usuarios)
       })

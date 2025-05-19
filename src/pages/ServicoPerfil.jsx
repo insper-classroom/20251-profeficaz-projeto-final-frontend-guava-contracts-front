@@ -60,7 +60,7 @@ function ServicoPerfil({servico_id, id_prestador}) {
   
       console.log('Dados do contrato a serem enviados:', dadosContrato);
   
-      const response = await axios.post('api/contrato', dadosContrato, {
+      const response = await axios.post('contrato', dadosContrato, {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -87,10 +87,10 @@ function ServicoPerfil({servico_id, id_prestador}) {
   };
 
   async function postNegociacao() {
-    const url = 'api/negociacao'; 
+    const url = 'negociacao'; 
     const data = {
       cliente: contaConectada,
-      prestador: await axios.get(`api/usuario/${id_prestador}`)
+      prestador: await axios.get(`usuario/${id_prestador}`)
         .then((response) => {
           console.log(response.data)
           return response.data.address

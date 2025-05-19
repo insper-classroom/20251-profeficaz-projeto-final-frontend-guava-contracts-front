@@ -17,7 +17,7 @@ function Categoria () {
 
 
   useEffect(() => {
-    axios.get(`api/categoria/servico/${id}`)
+    axios.get(`categoria/servico/${id}`)
       .then((response) => {
         
         setServicos(response.data)
@@ -28,7 +28,7 @@ function Categoria () {
 
 
   useEffect(() => {
-    axios.get(`api/categorias/${id}`)
+    axios.get(`categorias/${id}`)
       .then((response) => {
 
         setNomeCategoria(response.data.Name)

@@ -9,7 +9,7 @@ function Categorias () {
   const [categorias, setCategorias] = useState([]);
 
   useEffect(() => {
-    axios.get('api/categoria')
+    axios.get('categoria')
       .then((response) => {
         console.log(response.data)
         setCategorias(response.data.dados)
