@@ -15,9 +15,10 @@ function Categoria () {
     {"address": "6809410ee314814015b7f9ca" ,"nome": "Thales", "tempoDeAtuacao": "2 anos", "avaliacao": 4.5},
   ]
 
+  const API_BASE_URL = 'http://127.0.0.1:5000';
 
   useEffect(() => {
-    axios.get(`api/categoria/servico/${id}`)
+    axios.get(`${API_BASE_URL}/categoria/servico/${id}`)
       .then((response) => {
         
         setServicos(response.data)
@@ -28,7 +29,7 @@ function Categoria () {
 
 
   useEffect(() => {
-    axios.get(`api/categorias/${id}`)
+    axios.get(`${API_BASE_URL}/categorias/${id}`)
       .then((response) => {
 
         setNomeCategoria(response.data.Name)

@@ -7,9 +7,10 @@ import axios from 'axios';
 function Categorias () {
 
   const [categorias, setCategorias] = useState([]);
+  const API_BASE_URL = 'http://127.0.0.1:5000';
 
   useEffect(() => {
-    axios.get('api/categoria')
+    axios.get(`${API_BASE_URL}/categoria`)
       .then((response) => {
         console.log(response.data)
         setCategorias(response.data.dados)

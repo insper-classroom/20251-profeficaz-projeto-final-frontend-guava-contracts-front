@@ -9,9 +9,11 @@ function UsuariosPorServico () {
   const [usuarios, setUsuarios] = useState([])
   const [nomeServico, setNomeServico] = useState('')
 
+  const API_BASE_URL = 'http://127.0.0.1:5000';
+
   // Primeiro: buscar nome do serviço com base no id
 //   useEffect(() => {
-//   axios.get(`http://127.0.0.1:5000/servico`)
+//   axios.get(`${API_BASE_URL}/servico`)
 //     .then((res) => {
 //       const servicoEncontrado = res.data.servicos.find(s => s._id === id)
 //       if (servicoEncontrado) {
@@ -29,7 +31,7 @@ function UsuariosPorServico () {
 
   useEffect(() => {
 
-    axios.get(`api/categorias/servicos/${title}`)
+    axios.get(`${API_BASE_URL}/categorias/servicos/${title}`)
       .then((res) => {
         setUsuarios(res.data.usuarios)
       })

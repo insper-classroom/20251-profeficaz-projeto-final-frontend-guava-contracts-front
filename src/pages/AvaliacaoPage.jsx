@@ -32,7 +32,7 @@ function AvaliacaoPage() {
   
   try {
     const response = await axios.post(
-      `api/usuario/avaliar`,
+      `${API_BASE_URL}/usuario/avaliar`,
       dadosFormatados,
       {
         headers: {
@@ -65,7 +65,7 @@ function AvaliacaoPage() {
     try {
       const token = localStorage.getItem('authToken');
       // Usar a nova rota específica para endereço
-      const response = await axios.get(`api/usuario/endereco/${enderecoAvaliado}`, {
+      const response = await axios.get(`${API_BASE_URL}/usuario/endereco/${enderecoAvaliado}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
