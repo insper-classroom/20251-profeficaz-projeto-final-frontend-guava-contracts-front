@@ -4,7 +4,7 @@ import axios from 'axios';
 import { ContaContext } from '../context/ContaContext';
 import '../styles/Negociacao_Contrato.css';
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'http://127.0.0.1:5000';
 const AUTH_TOKEN_KEY = 'authToken';
 
 function PaginaNegociacao() { 
@@ -52,7 +52,7 @@ function PaginaNegociacao() {
 
       try {
         // 1. Buscar Detalhes da Negociação (incluindo partes e histórico)
-        const negDetailsRes = await axios.get(`negociacao/${negotiationId}`, {
+        const negDetailsRes = await axios.get(`${API_BASE_URL}/negociacao/${negotiationId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         console.log("Detalhes da Negociação:", negDetailsRes.data);
@@ -138,7 +138,7 @@ function PaginaNegociacao() {
     setLoading(true);
     try {
       // Os endpoints agora são relativos à negociação
-      let endpoint = `negociacao/${negotiationId}/`; 
+      let endpoint = `${API_BASE_URL}/negociacao/${negotiationId}/`; 
       const payload = { 
         role: currentUserRole,
         proposta: parseFloat(currentOfferInput),

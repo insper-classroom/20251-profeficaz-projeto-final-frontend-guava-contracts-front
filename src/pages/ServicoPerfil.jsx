@@ -20,7 +20,7 @@ function ServicoPerfil({servico_id, id_prestador}) {
     contaConectada
   } = useContext(ContaContext);
 
-
+  const API_BASE_URL = 'http://127.0.0.1:5000';
 
   const contratoRef = useRef();
 
@@ -59,8 +59,8 @@ function ServicoPerfil({servico_id, id_prestador}) {
       };
   
       console.log('Dados do contrato a serem enviados:', dadosContrato);
-  
-      const response = await axios.post('contrato', dadosContrato, {
+
+      const response = await axios.post(`${API_BASE_URL}/contrato`, dadosContrato, {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -87,10 +87,10 @@ function ServicoPerfil({servico_id, id_prestador}) {
   };
 
   async function postNegociacao() {
-    const url = 'negociacao'; 
+    const url = `${API_BASE_URL}/negociacao`; 
     const data = {
       cliente: contaConectada,
-      prestador: await axios.get(`usuario/${id_prestador}`)
+      prestador: await axios.get(`${API_BASE_URL}/usuario/${id_prestador}`)
         .then((response) => {
           console.log(response.data)
           return response.data.address
