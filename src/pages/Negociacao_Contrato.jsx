@@ -205,8 +205,160 @@ function PaginaNegociacao() {
     // Aceitar a proposta primeiro
     await submitNegotiationAction('accept');
     
-    // Aqui você pode adicionar a lógica do contrato se necessário
-    // Por enquanto, apenas aceita a negociação
+    // Aguardar um pouco para garantir que a negociação foi atualizada
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Recarregar dados para ter o valor_final atualizado
+    await fetchData();
+    
+    // Verificar se a negociação foi aceita com sucesso
+    if (!negotiationDetails || negotiationDetails.valor_final <= 0) {
+      alert("Erro: A negociação precisa estar aceita para criar o contrato!");
+      return;
+    }
+
+    if (window.confirm("Deseja criar um contrato inteligente na blockchain? Esta ação criará um contrato real.")) {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Buscar token de autenticação
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          alert("Token de autenticação não encontrado. Por favor, faça login novamente.");
+          return;
+        }
+
+        // Verificar se MetaMask está conectado e obter conta atual
+        if (!window.ethereum || !window.ethereum.isMetaMask) {
+          alert('MetaMask não detectada. Por favor, instale a extensão MetaMask.');
+          return;
+        }
+
+        // Solicitar conexão com MetaMask se necessário
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts.length === 0) {
+          await window.ethereum.request({ method: 'eth_requestAccounts' });
+        }
+
+        const currentAccount = accounts[0];
+        console.log("Conta conectada no MetaMask:", currentAccount);
+        console.log("Conta do contexto:", contaConectada);
+
+        // Verificar se a conta conectada é a mesma do contexto
+        if (currentAccount.toLowerCase() !== contaConectada.toLowerCase()) {
+          alert("A conta conectada no MetaMask é diferente da conta logada. Por favor, troque para a conta correta.");
+          return;
+        }
+
+        // Passo 1: Solicitar ao backend para preparar a transação
+        console.log("Preparando transação para o contrato...");
+        console.log("Dados sendo enviados:", {
+          id_freela: negotiationDetails.prestador,
+          valor: negotiationDetails.valor_final,
+          servico: `Contrato de serviço - Negociação ${negotiationId}`
+        });
+
+        const prepareResponse = await axios.post(`${API_BASE_URL}/contrato`, {
+          id_freela: negotiationDetails.prestador,
+          valor: negotiationDetails.valor_final,
+          servico: `Contrato de serviço - Negociação ${negotiationId}`
+        }, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        console.log("Resposta da preparação:", prepareResponse.data);
+        const { transaction, contract_data } = prepareResponse.data;
+
+        if (!transaction) {
+          throw new Error("Falha ao preparar a transação no backend.");
+        }
+
+        // Validar e ajustar a transação antes de enviar para MetaMask
+        const transactionForMetaMask = {
+          to: transaction.to,
+          data: transaction.data,
+          gas: transaction.gas,
+          gasPrice: transaction.gasPrice,
+          from: currentAccount, // Definir explicitamente o 'from'
+        };
+
+        // Adicionar value se existir
+        if (transaction.value) {
+          transactionForMetaMask.value = transaction.value;
+        }
+
+        console.log("Transação formatada para MetaMask:", transactionForMetaMask);
+
+        // Passo 2: Solicitar assinatura via MetaMask
+        console.log("Solicitando assinatura via MetaMask...");
+        const txHash = await window.ethereum.request({
+          method: 'eth_sendTransaction',
+          params: [transactionForMetaMask],
+        });
+
+        console.log('Transação enviada, hash:', txHash);
+        alert(`Transação enviada! Hash: ${txHash}\n\nVocê pode acompanhar no Etherscan.`);
+
+        // Passo 3: Registrar o contrato no backend com o hash da transação
+        console.log("Registrando contrato no backend...");
+        
+        // Verificar se o endpoint existe, senão usar PUT na negociação
+        try {
+          const registerResponse = await axios.post(`${API_BASE_URL}/contrato/registrar`, {
+            negotiation_id: negotiationId,
+            tx_hash: txHash,
+            ...contract_data
+          }, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          console.log("Contrato registrado:", registerResponse.data);
+        } catch (registerError) {
+          // Se endpoint não existe, usar PUT na negociação
+          console.log("Endpoint de registro não existe, usando PUT...");
+          await axios.put(`${API_BASE_URL}/negociacao/${negotiationId}`, {
+            tx_hash_contrato: txHash,
+            status_contrato: "PENDENTE"
+          });
+        }
+
+        alert("Contrato criado com sucesso na blockchain!");
+
+        // Recarregar dados da negociação
+        await fetchData();
+
+      } catch (error) {
+        console.error("Erro ao criar contrato:", error);
+        
+        if (error.response) {
+          const errorMsg = error.response.data?.erro || "Erro no servidor";
+          console.log("Detalhes do erro do servidor:", error.response.data);
+          
+          if (error.response.status === 401) {
+            alert("Sua sessão expirou. Por favor, faça login novamente.");
+          } else {
+            setError(`Erro ao criar contrato: ${errorMsg}`);
+            alert(`Erro: ${errorMsg}`);
+          }
+        } else if (error.code) {
+          // Erro do MetaMask
+          console.log("Erro do MetaMask:", error);
+          setError("Erro na transação MetaMask");
+          alert(`Erro do MetaMask: ${error.message}`);
+        } else {
+          setError("Erro de conexão ao criar contrato");
+          alert("Erro de conexão. Verifique sua internet e tente novamente.");
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   const cancelarNegociacao = async () => {
@@ -370,6 +522,49 @@ function PaginaNegociacao() {
       {isFinalized && (
         <div className="negotiation-finalized">
           {statusMessage}
+          {/* Adicionar botão Fechar Contrato apenas para clientes quando negociação foi aceita */}
+          {currentUserRole === 'client' && negotiationDetails.valor_final > 0 && !negotiationDetails.tx_hash_contrato && (
+            <div style={{marginTop: '20px'}}>
+              <button
+                className="contract-button"
+                onClick={criarContrato}
+                disabled={loading}
+                style={{
+                  backgroundColor: '#2e7d32',
+                  color: 'white',
+                  border: 'none',
+                  padding: '12px 24px',
+                  borderRadius: '4px',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: loading ? 0.6 : 1,
+                  fontSize: '16px',
+                  fontWeight: 'bold'
+                }}
+              >
+                {loading ? 'Criando Contrato...' : 'Fechar Contrato na Blockchain 📄'}
+              </button>
+              <p style={{fontSize: '12px', color: '#666', marginTop: '8px'}}>
+                ⚠️ Esta ação criará um contrato inteligente real na blockchain
+              </p>
+            </div>
+          )}
+
+          {/* Mostrar link do contrato se já foi criado */}
+          {negotiationDetails.tx_hash_contrato && (
+            <div style={{marginTop: '20px', padding: '15px', backgroundColor: '#e8f5e8', borderRadius: '4px'}}>
+              <p style={{color: '#2e7d32', fontWeight: 'bold'}}>✅ Contrato criado na blockchain!</p>
+              <p>
+                <a 
+                  href={`https://sepolia.etherscan.io/tx/${negotiationDetails.tx_hash_contrato}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{color: '#1976d2', textDecoration: 'underline'}}
+                >
+                  Ver transação no Etherscan
+                </a>
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>
