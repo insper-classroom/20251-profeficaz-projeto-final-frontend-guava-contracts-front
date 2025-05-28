@@ -50,34 +50,6 @@ function PerfilUsuario() {
   const [allCategories, setAllCategories] = useState([]);
 
 
-  const contratosArbitrarios = {
-
-    "contratos_como_cliente": [
-    
-      {
-      "_id": "680d4115b46ac3c723fc3535",
-      "valor": 150,
-      "status": "In progress",
-      "servico": "Aula de Cálculo",
-      "address": {"cliente": "alksdfihq wefhqwd fhiuyewg o", "prestador": "qlwkef hndsh fawfhcmqwch"},
-      "address_contrato": "0x1B72b45A9Af233f2a7b2AEd4a56E1E2B49d1594E"
-    
-      }
-    ], 
-    "contratos_como_prestador": [
-    
-      {
-      "_id": "680d4115b46ac3c723fc3535",
-      "valor": 150,
-      "status": "Pendente",
-      "servico": "Aula de Cálculo",
-      "address": {"cliente": "alksdfihq wefhqwd fhiuyewg o", "prestador": "qlwkef hndsh fawfhcmqwch"},
-      "address_contrato": "0x1B72b45A9Af233f2a7b2AEd4a56E1E2B49d1594E"
-    
-      }
-    ]};
-
-
   const toggleOverlayUsuario = () => setOverlayUsuario(!overlayUsuario);
   const toggleMostrarContratos = () => {
     setMostrarContratosPrestador(!mostrarContratosPrestador)
@@ -152,9 +124,7 @@ function PerfilUsuario() {
 
           console.log(response.data.contratos_como_prestador);
           setContratosCliente( response.data.contratos_como_cliente || []);
-          console.log(contratosArbitrarios.contratos_como_cliente);
           setContratosPrestador( response.data.contratos_como_prestador || []);
-          console.log(contratosArbitrarios.contratos_como_prestador);
           setContratos(response.data.contratos || response.data.dados || response.data || []);
         }
       } catch (error) {
@@ -166,7 +136,6 @@ function PerfilUsuario() {
     };
 
     const fetchAllCategories = async () => {
-      if (!isMounted) return response.data.contratos_como_prestador;
       try {
         const response = await axios.get(`${API_BASE_URL}/categoria`, {
           headers: { 'Authorization': `Bearer ${token}` }
