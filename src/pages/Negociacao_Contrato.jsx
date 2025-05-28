@@ -253,17 +253,15 @@ function PaginaNegociacao() {
 
         // Passo 1: Solicitar ao backend para preparar a transação
         console.log("Preparando transação para o contrato...");
-        console.log("Dados sendo enviados:", {
+        const dadosParaContrato = {
           id_freela: negotiationDetails.prestador,
           valor: negotiationDetails.valor_final,
           servico: `Contrato de serviço - Negociação ${negotiationId}`
-        });
+        };
+        
+        console.log("Dados sendo enviados:", dadosParaContrato);
 
-        const prepareResponse = await axios.post(`${API_BASE_URL}/contrato`, {
-          id_freela: negotiationDetails.prestador,
-          valor: negotiationDetails.valor_final,
-          servico: `Contrato de serviço - Negociação ${negotiationId}`
-        }, {
+        const prepareResponse = await axios.post(`${API_BASE_URL}/contrato`, dadosParaContrato, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -283,7 +281,7 @@ function PaginaNegociacao() {
           data: transaction.data,
           gas: transaction.gas,
           gasPrice: transaction.gasPrice,
-          from: currentAccount, // Definir explicitamente o 'from'
+          from: currentAccount,
         };
 
         // Adicionar value se existir
@@ -301,34 +299,58 @@ function PaginaNegociacao() {
         });
 
         console.log('Transação enviada, hash:', txHash);
-        alert(`Transação enviada! Hash: ${txHash}\n\nVocê pode acompanhar no Etherscan.`);
+        alert(`Transação enviada! Hash: ${txHash}\n\nAguardando confirmação para registrar no banco...`);
 
-        // Passo 3: Registrar o contrato no backend com o hash da transação
-        console.log("Registrando contrato no backend...");
+        // Passo 3: Registrar o contrato no banco usando o endpoint correto
+        console.log("Registrando contrato no banco de dados...");
         
-        // Verificar se o endpoint existe, senão usar PUT na negociação
         try {
           const registerResponse = await axios.post(`${API_BASE_URL}/contrato/registrar`, {
-            negotiation_id: negotiationId,
-            tx_hash: txHash,
-            ...contract_data
+            txHash: txHash,
+            contract_data: contract_data
           }, {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json'
             }
           });
+          
           console.log("Contrato registrado:", registerResponse.data);
-        } catch (registerError) {
-          // Se endpoint não existe, usar PUT na negociação
-          console.log("Endpoint de registro não existe, usando PUT...");
+          
+          // Atualizar negociação com os dados do contrato
           await axios.put(`${API_BASE_URL}/negociacao/${negotiationId}`, {
             tx_hash_contrato: txHash,
-            status_contrato: "PENDENTE"
+            contract_address: registerResponse.data.contract_address,
+            status_contrato: "CRIADO",
+            db_contrato_id: registerResponse.data.db_id
           });
+          
+          alert(`Contrato criado e registrado com sucesso!\n\nEndereço: ${registerResponse.data.contract_address}\nID no banco: ${registerResponse.data.db_id}`);
+          
+        } catch (registerError) {
+          console.error("Erro ao registrar contrato:", registerError);
+          
+          // Mesmo que falhe o registro, salvar o hash na negociação
+          await axios.put(`${API_BASE_URL}/negociacao/${negotiationId}`, {
+            tx_hash_contrato: txHash,
+            status_contrato: "PENDENTE_REGISTRO"
+          });
+          
+          if (registerError.response) {
+            const errorMsg = registerError.response.data?.erro || "Erro no servidor";
+            console.log("Detalhes do erro de registro:", registerError.response.data);
+            
+            if (registerError.response.status === 404) {
+              alert("Transação ainda não foi confirmada na blockchain. O contrato será registrado automaticamente quando for confirmado.");
+            } else if (registerError.response.status === 408) {
+              alert("Timeout aguardando confirmação. O contrato foi criado mas pode demorar para aparecer no banco.");
+            } else {
+              alert(`Contrato criado mas erro no registro: ${errorMsg}`);
+            }
+          } else {
+            alert("Contrato criado mas erro de conexão no registro. Tente novamente mais tarde.");
+          }
         }
-
-        alert("Contrato criado com sucesso na blockchain!");
 
         // Recarregar dados da negociação
         await fetchData();
@@ -552,7 +574,10 @@ function PaginaNegociacao() {
           {/* Mostrar link do contrato se já foi criado */}
           {negotiationDetails.tx_hash_contrato && (
             <div style={{marginTop: '20px', padding: '15px', backgroundColor: '#e8f5e8', borderRadius: '4px'}}>
-              <p style={{color: '#2e7d32', fontWeight: 'bold'}}>✅ Contrato criado na blockchain!</p>
+              <p style={{color: '#2e7d32', fontWeight: 'bold'}}>
+                ✅ Contrato criado na blockchain!
+                {negotiationDetails.status_contrato === 'CRIADO' && ' 📄 Registrado no banco'}
+              </p>
               <p>
                 <a 
                   href={`https://sepolia.etherscan.io/tx/${negotiationDetails.tx_hash_contrato}`} 
@@ -563,6 +588,28 @@ function PaginaNegociacao() {
                   Ver transação no Etherscan
                 </a>
               </p>
+              {negotiationDetails.contract_address && (
+                <div>
+                  <p>
+                    <a 
+                      href={`https://sepolia.etherscan.io/address/${negotiationDetails.contract_address}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{color: '#1976d2', textDecoration: 'underline'}}
+                    >
+                      Ver contrato no Etherscan
+                    </a>
+                  </p>
+                  <p style={{fontSize: '12px', color: '#666'}}>
+                    Endereço: {negotiationDetails.contract_address}
+                  </p>
+                  {negotiationDetails.db_contrato_id && (
+                    <p style={{fontSize: '12px', color: '#666'}}>
+                      ID no banco: {negotiationDetails.db_contrato_id}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>
