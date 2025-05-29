@@ -36,7 +36,7 @@ function PerfilUsuario() {
     created_at: "",
     address: "",
     categorias_servico: [],
-    servicos_selecionados: {}
+    servicos: {}
   });
   const [loading, setLoading] = useState(true);
   const [errorPage, setErrorPage] = useState(null);
@@ -94,7 +94,7 @@ function PerfilUsuario() {
           created_at: perfil.created_at,
           address: perfil.address,
           categorias_servico: perfil.categorias_servico || [],
-          servicos_selecionados: perfil.servicos_selecionados || {}
+          servicos: perfil.servicos || {}
         });
         
         // Inicializar formulário com nomes de categorias
@@ -106,7 +106,7 @@ function PerfilUsuario() {
         });
         
         // Inicializar serviços selecionados
-        setServicosSelecionados(perfil.servicos_selecionados || {});
+        setServicosSelecionados(perfil.servicos || {});
         
         return perfil.address;
       }
@@ -272,7 +272,7 @@ function PerfilUsuario() {
         profissao: editFormData.profissao.trim(),
         descricao: editFormData.descricao.trim(),
         categorias_servico: editFormData.categorias_servico || [], // Já são nomes
-        servicos_selecionados: servicosSelecionados
+        servicos: servicosSelecionados
       };
 
       const response = await axios.put(`${API_BASE_URL}/perfilusuario`, payload, {
@@ -287,7 +287,7 @@ function PerfilUsuario() {
         profissao: updatedProfile.profissao || payload.profissao || "Não informado",
         descricao: updatedProfile.descricao || payload.descricao || "Nenhuma descrição.",
         categorias_servico: updatedProfile.categorias_servico || payload.categorias_servico || [],
-        servicos_selecionados: updatedProfile.servicos_selecionados || payload.servicos_selecionados || {}
+        servicos: updatedProfile.servicos || payload.servicos || {}
       }));
       setIsEditing(false);
     } catch (error) {
@@ -529,11 +529,11 @@ function PerfilUsuario() {
                             <div className="user-category-item">
                               <strong>{categoriaNome}</strong>
                             </div>
-                            {usuarioData.servicos_selecionados && 
-                            usuarioData.servicos_selecionados[categoriaNome] && 
-                            usuarioData.servicos_selecionados[categoriaNome].length > 0 && (
+                            {usuarioData.servicos && 
+                            usuarioData.servicos[categoriaNome] && 
+                            usuarioData.servicos[categoriaNome].length > 0 && (
                               <div className="user-servicos-list">
-                                {usuarioData.servicos_selecionados[categoriaNome].map((servico, idx) => (
+                                {usuarioData.servicos[categoriaNome].map((servico, idx) => (
                                   <span key={idx} className="user-servico-tag">{servico}</span>
                                 ))}
                               </div>
