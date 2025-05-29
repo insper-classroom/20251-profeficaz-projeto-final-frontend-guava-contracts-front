@@ -417,3 +417,109 @@
 .container_descricao_contrato {
   margin: 4% 0;
 }
+
+.category-checkbox-container {
+  margin-bottom: 15px;
+}
+
+.category-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.selecionar-servicos-btn {
+  margin-left: 10px;
+  padding: 4px 8px;
+  font-size: 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.selecionar-servicos-btn:hover {
+  background-color: #0056b3;
+}
+
+.servicos-count {
+  font-weight: bold;
+  margin-left: 4px;
+}
+
+.servicos-selecionados-preview {
+  margin-top: 5px;
+  margin-left: 20px;
+  color: #666;
+  font-style: italic;
+  font-size: 12px;
+}
+
+.servicos-modal {
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.servicos-container {
+  margin: 20px 0;
+}
+
+.servicos-checkbox-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.servico-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.servico-checkbox-item input[type="checkbox"] {
+  margin: 0;
+}
+
+.sem-servicos {
+  text-align: center;
+  padding: 20px;
+}
+
+.servicos-modal-actions {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.user-category-container {
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.user-category-item {
+  margin-bottom: 8px;
+}
+
+.user-servicos-list {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.user-servico-tag {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 12px;
+  font-size: 12px;
+}
