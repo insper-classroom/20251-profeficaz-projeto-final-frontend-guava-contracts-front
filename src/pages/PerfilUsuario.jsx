@@ -27,6 +27,10 @@ function PerfilUsuario() {
   const [overlayServicos, setOverlayServicos] = useState(false);
   const [categoriaAtual, setCategoriaAtual] = useState(null);
   const [servicosSelecionados, setServicosSelecionados] = useState([]);
+  const [loadingDetalhes, setLoadingDetalhes] = useState(false);
+  const [contratoAtual, setContratoAtual] = useState(null);
+  const [negociacaoAssociada, setNegociacaoAssociada] = useState(null);
+
   const [usuarioData, setUsuarioData] = useState({
     nome: "",
     profissao: "",
@@ -53,7 +57,6 @@ function PerfilUsuario() {
   const [editError, setEditError] = useState(null);
   const [allCategories, setAllCategories] = useState([]);
 
-
   const toggleOverlayUsuario = () => setOverlayUsuario(!overlayUsuario);
   const toggleMostrarContratos = () => {
     setMostrarContratosPrestador(!mostrarContratosPrestador)
@@ -64,6 +67,82 @@ function PerfilUsuario() {
   const formatarEndereco = (endereco) => {
     if (!endereco) return '';
     return `${endereco.slice(0, 6)}...${endereco.slice(-4)}`;
+  };
+
+  // Função para buscar negociação associada ao contrato
+  const buscarNegociacaoDoContrato = async (contrato, userAddress) => {
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    try {
+      // Buscar todas as negociações do usuário
+      const response = await axios.get(`${API_BASE_URL}/negociacao/usuario/${userAddress}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (response.data && response.data.negociacoes) {
+        const negociacaoEncontrada = response.data.negociacoes.find(neg => {
+          const isUserInvolved = neg.cliente === userAddress || neg.prestador === userAddress;
+          return isUserInvolved;
+        });
+        
+        return negociacaoEncontrada;
+      }
+    } catch (error) {
+      console.error("Erro ao buscar negociações para o contrato:", error);
+    }
+    return null;
+  };
+
+  // Função para abrir modal com detalhes do contrato
+  const abrirDetalhesContrato = async (contrato) => {
+    setLoadingDetalhes(true);
+    setContratoAtual(contrato);
+    setNegociacaoAssociada(null);
+    
+    // Debug: ver estrutura completa do contrato
+    console.log("Contrato completo:", contrato);
+    
+    const contratoAddress = contrato.contract_address
+    const contratoId = contrato.id_contrato || contrato._id; // ID do banco
+    
+    console.log("Endereço do contrato extraído:", contratoAddress);
+    console.log("ID do contrato:", contratoId);
+    
+    const clienteAddress = contrato.address_cliente || 
+                          contrato.cliente || 
+                          (contrato.address && contrato.address.id_cliente);
+    const freelaAddress = contrato.address_prestador || 
+                        contrato.prestador || 
+                        (contrato.address && contrato.address.id_freela);
+
+    console.log("Endereços extraídos:", {
+      contrato: contratoAddress,
+      cliente: clienteAddress,
+      freelancer: freelaAddress
+    });
+
+    // Definir o endereço da blockchain para exibição
+    setAddressContrato(contratoAddress); // Agora usa o endereço da blockchain
+    setAddressCliente(clienteAddress);
+    setAddressFreela(freelaAddress);
+
+    // Se não temos os endereços do contrato, buscar da negociação
+    if (!clienteAddress || !freelaAddress) {
+      console.log("Endereços não encontrados no contrato, buscando na negociação...");
+      
+      const negociacao = await buscarNegociacaoDoContrato(contrato, usuarioData.address);
+      if (negociacao) {
+        setNegociacaoAssociada(negociacao);
+        setAddressCliente(negociacao.cliente);
+        setAddressFreela(negociacao.prestador);
+        console.log("Endereços encontrados na negociação:", {
+          cliente: negociacao.cliente,
+          prestador: negociacao.prestador
+        });
+      }
+    }
+
+    setLoadingDetalhes(false);
+    toggleOverlayUsuario();
   };
 
   useEffect(() => {
@@ -107,12 +186,10 @@ function PerfilUsuario() {
             categorias_servico: perfil.categorias_servico || []
           });
           
-          // Initialize selected services as simple array
           setServicosSelecionados(perfil.servicos || []);
           
           console.log("Serviços inicializados:", perfil.servicos);
           
-          // Load servicosPorCategoria for all user categories
           if (perfil.categorias_servico && perfil.categorias_servico.length > 0) {
             for (const categoria of perfil.categorias_servico) {
               await fetchServicosCategoria(categoria);
@@ -142,9 +219,9 @@ function PerfilUsuario() {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (isMounted) {
-          console.log(response.data.contratos_como_prestador);
-          setContratosCliente( response.data.contratos_como_cliente || []);
-          setContratosPrestador( response.data.contratos_como_prestador || []);
+          console.log("Contratos recebidos:", response.data);
+          setContratosCliente(response.data.contratos_como_cliente || []);
+          setContratosPrestador(response.data.contratos_como_prestador || []);
           setContratos(response.data.contratos || response.data.dados || response.data || []);
         }
       } catch (error) {
@@ -191,7 +268,6 @@ function PerfilUsuario() {
 
   const handleEditToggle = () => {
     if (!isEditing) {
-      // modo de edição ativado
       setEditFormData({
         nome: usuarioData.nome || "",
         profissao: usuarioData.profissao === "Não informado" ? "" : usuarioData.profissao,
@@ -221,7 +297,6 @@ function PerfilUsuario() {
   const abrirOverlayServicos = async (categoria) => {
     setCategoriaAtual(categoria);
     
-    // Buscar serviços para esta categoria se ainda não temos
     if (!servicosPorCategoria[categoria.Name]) {
       await fetchServicosCategoria(categoria.Name);
     }
@@ -242,7 +317,6 @@ function PerfilUsuario() {
       });
       console.log("Serviços da categoria:", response.data);
 
-      // Extrair apenas os nomes dos serviços
       const servicosNomes = response.data.map(servico => servico.title);
       
       setServicosPorCategoria(prev => ({
@@ -262,7 +336,6 @@ function PerfilUsuario() {
     });
   };
 
-
   const handleSaveProfile = async () => {
     const token = localStorage.getItem(AUTH_TOKEN_KEY);
     if (!token) {
@@ -279,7 +352,7 @@ function PerfilUsuario() {
         profissao: editFormData.profissao.trim(),
         descricao: editFormData.descricao.trim(),
         categorias_servico: editFormData.categorias_servico || [],
-        servicos: servicosSelecionados // Send directly as array of service names
+        servicos: servicosSelecionados
       };
 
       console.log("Payload sendo enviado:", payload);
@@ -313,13 +386,15 @@ function PerfilUsuario() {
     }
   };
 
-
   const handleDepositar = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem(AUTH_TOKEN_KEY);
     if (!token) { navigate('/'); return; }
     try {
-      const response = await axios.post(`${API_BASE_URL}/contrato/${addressContrato}/depositar`,
+      // Se a API de depósito precisar do ID do banco ao invés do address, use contratoAtual.id_contrato
+      const idParaDeposito = contratoAtual?.id_contrato || contratoAtual?._id || addressContrato;
+      
+      const response = await axios.post(`${API_BASE_URL}/contrato/${idParaDeposito}/depositar`,
         { address_cliente: addressCliente },
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
@@ -351,68 +426,100 @@ function PerfilUsuario() {
     );
   }
 
-
   return (
     <>
       {overlayServicos && categoriaAtual && (
-      <>
-        <div className="overlay"></div>
-        <div className="modal">
-          <div onClick={fecharOverlayServicos} className="overlay-perfil"></div>
-          <div className="modal-content-perfil servicos-modal">
-            <h2>Selecionar Serviços - {categoriaAtual.Name}</h2>
-            <div className="servicos-container">
-              {servicosPorCategoria[categoriaAtual.Name] && servicosPorCategoria[categoriaAtual.Name].length > 0 ? (
-                <div className="servicos-checkbox-group">
-                  {servicosPorCategoria[categoriaAtual.Name].map((servico, index) => (
-                    <div key={`${categoriaAtual._id}-servico-${index}`} className="servico-checkbox-item">
-                      <input
-                        type="checkbox"
-                        id={`servico-${categoriaAtual._id}-${index}`}
-                        checked={servicosSelecionados.includes(servico)}
-                        onChange={() => handleServicoChange(servico)}
-                      />
-                      <label htmlFor={`servico-${categoriaAtual._id}-${index}`}>{servico}</label>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="sem-servicos">
-                  <p>Carregando serviços...</p>
-                </div>
-              )}
-            </div>
-            <div className="servicos-modal-actions">
-              <button onClick={fecharOverlayServicos} className="botao_fechar_modal_perfil">
-                Confirmar Seleção
-              </button>
+        <>
+          <div className="overlay"></div>
+          <div className="modal">
+            <div onClick={fecharOverlayServicos} className="overlay-perfil"></div>
+            <div className="modal-content-perfil servicos-modal">
+              <h2>Selecionar Serviços - {categoriaAtual.Name}</h2>
+              <div className="servicos-container">
+                {servicosPorCategoria[categoriaAtual.Name] && servicosPorCategoria[categoriaAtual.Name].length > 0 ? (
+                  <div className="servicos-checkbox-group">
+                    {servicosPorCategoria[categoriaAtual.Name].map((servico, index) => (
+                      <div key={`${categoriaAtual._id}-servico-${index}`} className="servico-checkbox-item">
+                        <input
+                          type="checkbox"
+                          id={`servico-${categoriaAtual._id}-${index}`}
+                          checked={servicosSelecionados.includes(servico)}
+                          onChange={() => handleServicoChange(servico)}
+                        />
+                        <label htmlFor={`servico-${categoriaAtual._id}-${index}`}>{servico}</label>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="sem-servicos">
+                    <p>Carregando serviços...</p>
+                  </div>
+                )}
+              </div>
+              <div className="servicos-modal-actions">
+                <button onClick={fecharOverlayServicos} className="botao_fechar_modal_perfil">
+                  Confirmar Seleção
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </>
-    )}
-      {overlayUsuario && (
-      <>
-        <div className="overlay"></div>
-        <div className="modal">
-
-          <div onClick={toggleOverlayUsuario} className="overlay-perfil"></div>
-          <div className="modal-content-perfil">
-            <h2>Detalhes do Contrato</h2>
-            <div className="container_descricao_contrato">
-              <p><strong>ID do Contrato:</strong> {addressContrato}</p>
-              <p><strong>Cliente:</strong> {formatarEndereco(addressCliente)}</p>
-              <p><strong>Freelancer:</strong> {formatarEndereco(addressFreela)}</p>
-            </div>
-
-            <div className='container_botoes_contrato'>
-              <button onClick={handleDepositar} className="botao_opcao_contrato">Depositar Fundos</button>
-            </div>
-            <button onClick={toggleOverlayUsuario} className="botao_fechar_modal_perfil">Fechar</button>
-          </div>
-        </div>
         </>
       )}
+      
+      {overlayUsuario && (
+        <>
+          <div className="overlay"></div>
+          <div className="modal">
+            <div onClick={toggleOverlayUsuario} className="overlay-perfil"></div>
+            <div className="modal-content-perfil">
+              <h2>Detalhes do Contrato</h2>
+              {loadingDetalhes ? (
+                <div className="container_descricao_contrato">
+                  <p>Carregando detalhes...</p>
+                </div>
+              ) : (
+                <div className="container_descricao_contrato">
+                  <p><strong>Endereço do Contrato:</strong> {addressContrato || 'N/A'}</p>
+                  <p><strong>Cliente:</strong> {addressCliente ? formatarEndereco(addressCliente) : 'N/A'}</p>
+                  <p><strong>Freelancer:</strong> {addressFreela ? formatarEndereco(addressFreela) : 'N/A'}</p>
+                  
+                  {contratoAtual && (
+                    <>
+                      <p><strong>Status:</strong> {contratoAtual.status || 'N/A'}</p>
+                      <p><strong>Valor:</strong> {contratoAtual.valor || 'N/A'} ETH</p>
+                    </>
+                  )}
+                  
+                  {negociacaoAssociada && (
+                    <div style={{marginTop: '10px', padding: '10px', background: '#e3f2fd', borderRadius: '4px'}}>
+                      <p><strong>📋 Dados da Negociação Associada:</strong></p>
+                      <p><small>ID Negociação: {negociacaoAssociada._id}</small></p>
+                      <p><small>Proposta: {negociacaoAssociada.proposta} ETH</small></p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className='container_botoes_contrato'>
+                <button onClick={handleDepositar} className="botao_opcao_contrato">
+                  Depositar Fundos
+                </button>
+                {negociacaoAssociada && (
+                  <button 
+                    onClick={() => navigate(`/negociar/${negociacaoAssociada._id}`)}
+                    className="botao_opcao_contrato"
+                    style={{marginLeft: '10px', background: '#2196F3'}}
+                  >
+                    Ver Negociação
+                  </button>
+                )}
+              </div>
+              <button onClick={toggleOverlayUsuario} className="botao_fechar_modal_perfil">Fechar</button>
+            </div>
+          </div>
+        </>
+      )}
+      
       <Navbar />
       <div className="container_pagina_perfil">
         <div className="container_perfil">
@@ -484,7 +591,6 @@ function PerfilUsuario() {
                             />
                             <label htmlFor={`cat-edit-${cat._id}`}>{cat.Name}</label>
                             
-                            {/* Botão para selecionar serviços se a categoria estiver marcada */}
                             {(editFormData.categorias_servico || []).includes(cat.Name) && (
                               <button
                                 type="button"
@@ -507,7 +613,6 @@ function PerfilUsuario() {
                             )}
                           </div>
                           
-                          {/* Mostrar serviços selecionados */}
                           {servicosSelecionados[cat.Name] && servicosSelecionados[cat.Name].length > 0 && (
                             <div className="servicos-selecionados-preview">
                               <small>Serviços: {servicosSelecionados[cat.Name].join(', ')}</small>
@@ -543,7 +648,6 @@ function PerfilUsuario() {
                     {usuarioData.categorias_servico && usuarioData.categorias_servico.length > 0 ? (
                       <div className="user-categories-list">
                         {usuarioData.categorias_servico.map((categoriaNome, index) => {
-                          // Filtrar serviços que pertencem a esta categoria
                           const servicosDaCategoria = servicosPorCategoria[categoriaNome] || [];
                           const servicosDoUsuarioNaCategoria = (usuarioData.servicos || []).filter(servico =>
                             servicosDaCategoria.includes(servico)
@@ -590,7 +694,6 @@ function PerfilUsuario() {
             </div>
           </div>
           {mostrarContratosPrestador ? 
-
           (contratosPrestador && contratosPrestador.length > 0 ? (
             contratosPrestador.map(contrato => (
               <div className="lista_contratos" key={contrato._id || contrato.id_contrato}>
@@ -601,12 +704,10 @@ function PerfilUsuario() {
                     <p className="desc_contrato_item">Valor: {contrato.valor} ETH</p>
                   </div>
                   <div className="botoes">
-                    <button onClick={() => {
-                      toggleOverlayUsuario();
-                      setAddressContrato(contrato.id_contrato || contrato._id);
-                      setAddressCliente(contrato.address_cliente || (contrato.address && contrato.address.id_cliente));
-                      setAddressFreela(contrato.address_prestador || (contrato.address && contrato.address.id_freela));
-                    }} className="botao_visualizar_contrato">
+                    <button 
+                      onClick={() => abrirDetalhesContrato(contrato)} 
+                      className="botao_visualizar_contrato"
+                    >
                       Visualizar Detalhes
                     </button>
                   </div>
@@ -621,7 +722,6 @@ function PerfilUsuario() {
               </div>
             </>
             ))
-
           : (contratosCliente && contratosCliente.length > 0 ? (
             contratosCliente.map(contrato => (
               <div className="lista_contratos" key={contrato._id || contrato.id_contrato}>
@@ -632,12 +732,10 @@ function PerfilUsuario() {
                     <p className="desc_contrato_item">Valor: {contrato.valor} ETH</p>
                   </div>
                   <div className="botoes">
-                    <button onClick={() => {
-                      toggleOverlayUsuario();
-                      setAddressContrato(contrato.id_contrato || contrato._id);
-                      setAddressCliente(contrato.address_cliente || (contrato.address && contrato.address.id_cliente));
-                      setAddressFreela(contrato.address_prestador || (contrato.address && contrato.address.id_freela));
-                    }} className="botao_visualizar_contrato">
+                    <button 
+                      onClick={() => abrirDetalhesContrato(contrato)} 
+                      className="botao_visualizar_contrato"
+                    >
                       Visualizar Detalhes
                     </button>
                   </div>
@@ -652,7 +750,6 @@ function PerfilUsuario() {
                   </div>
                 </>
               ))}
-
         </div>
       </div>
     </>
