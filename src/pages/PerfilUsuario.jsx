@@ -31,6 +31,10 @@ function PerfilUsuario() {
   const [contratoAtual, setContratoAtual] = useState(null);
   const [negociacaoAssociada, setNegociacaoAssociada] = useState(null);
 
+  // Estados para notificações de negociação
+  const [negociacoesPendentes, setNegociacoesPendentes] = useState([]);
+  const [negociacaoSelecionada, setNegociacaoSelecionada] = useState(null);
+
   const [usuarioData, setUsuarioData] = useState({
     nome: "",
     profissao: "",
@@ -69,6 +73,26 @@ function PerfilUsuario() {
     return `${endereco.slice(0, 6)}...${endereco.slice(-4)}`;
   };
 
+  // Função para buscar negociações pendentes
+  const fetchNegociacoesPendentes = async (userAddress) => {
+    if (!userAddress) return;
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    try {
+      const response = await axios.get(`${API_BASE_URL}/negociacao/usuario/${userAddress}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (response.data && response.data.negociacoes) {
+        // Filtrar apenas negociações pendentes (valor_final = 0)
+        const pendentes = response.data.negociacoes.filter(neg => neg.valor_final === 0);
+        setNegociacoesPendentes(pendentes);
+        console.log("Negociações pendentes:", pendentes);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar negociações pendentes:", error);
+    }
+  };
+
   // Função para buscar negociação associada ao contrato
   const buscarNegociacaoDoContrato = async (contrato, userAddress) => {
     const token = localStorage.getItem(AUTH_TOKEN_KEY);
@@ -79,14 +103,20 @@ function PerfilUsuario() {
       });
       
       if (response.data && response.data.negociacoes) {
+        // Tentar encontrar a negociação específica relacionada ao contrato
         const negociacaoEncontrada = response.data.negociacoes.find(neg => {
+          // Critérios mais específicos para associar negociação ao contrato:
           const valorCoincidir = contrato.valor && neg.valor_final && 
                                 Math.abs(parseFloat(contrato.valor) - parseFloat(neg.valor_final)) < 0.001;
           
-          const isFinalizada = neg.valor_final > 0;
+          const isFinalizada = neg.valor_final > 0; // Negociação finalizada vira contrato
+          
+          // Se temos valor para comparar, usar isso
           if (valorCoincidir && isFinalizada) {
             return true;
           }
+          
+          // Caso contrário, pegar a mais recente finalizada envolvendo o usuário
           return isFinalizada;
         });
         
@@ -103,36 +133,61 @@ function PerfilUsuario() {
     setLoadingDetalhes(true);
     setContratoAtual(contrato);
     setNegociacaoAssociada(null);
+    setNegociacaoSelecionada(null); // Limpar negociação selecionada
     
     // Debug: ver estrutura completa do contrato
+    console.log("=== DEBUG CONTRATO ===");
     console.log("Contrato completo:", contrato);
+    console.log("contract_address:", contrato.contract_address);
+    console.log("=====================");
     
-    const contratoAddress = contrato.contract_address;
+    // Usar contract_address primeiro (campo correto)
+    const contratoAddress = contrato.contract_address || 
+                            contrato.address_contrato || 
+                            contrato.endereco_contrato ||
+                            contrato.blockchain_address;
+    
     const contratoId = contrato.id_contrato || contrato._id;
     
-    console.log("Endereço do contrato extraído:", contratoAddress);
+    console.log("Endereço extraído:", contratoAddress);
     console.log("ID do contrato:", contratoId);
     
-    // CORRIGIDO: Pegar endereços diretamente do contrato primeiro
-    let clienteAddress = contrato.cliente_address || 
+    // Verificar se temos um endereço válido da blockchain
+    if (!contratoAddress) {
+      console.error('❌ ERRO: Endereço da blockchain não encontrado!');
+    } else if (!contratoAddress.startsWith('0x') || contratoAddress.length !== 42) {
+      console.error('❌ ERRO: Endereço inválido:', contratoAddress);
+    } else {
+      console.log('✅ Endereço válido encontrado:', contratoAddress);
+    }
+    
+    let clienteAddress = contrato.address_cliente ||
                         contrato.cliente || 
                         (contrato.address && contrato.address.id_cliente);
-    let freelaAddress = contrato.prestador_address || 
+    let freelaAddress = contrato.address_prestador ||
                       contrato.prestador || 
                       contrato.freelancer ||
                       (contrato.address && contrato.address.id_freela);
 
-    console.log("Endereços extraídos do contrato:", {
-      contrato: contratoAddress,
+    console.log("Endereços das partes:", {
       cliente: clienteAddress,
       freelancer: freelaAddress
     });
 
-    // SEMPRE buscar da negociação para garantir que temos os endereços corretos
+    // Buscar da negociação para garantir que temos os endereços corretos
     const negociacao = await buscarNegociacaoDoContrato(contrato, usuarioData.address);
     if (negociacao) {
       console.log("Negociação encontrada:", negociacao);
       setNegociacaoAssociada(negociacao);
+      
+      // Usar endereços da negociação se não tivermos do contrato
+      if (!clienteAddress) clienteAddress = negociacao.cliente;
+      if (!freelaAddress) freelaAddress = negociacao.prestador;
+      
+      console.log("Endereços finais (após negociação):", {
+        cliente: clienteAddress,
+        freelancer: freelaAddress
+      });
     }
 
     // Definir os endereços finais
@@ -222,14 +277,6 @@ function PerfilUsuario() {
           console.log("Contratos como prestador:", response.data.contratos_como_prestador);
           console.log("Contratos como cliente:", response.data.contratos_como_cliente);
           
-          // Log detalhado de cada contrato para ver a estrutura
-          if (response.data.contratos_como_prestador && response.data.contratos_como_prestador.length > 0) {
-            console.log("Primeiro contrato prestador:", response.data.contratos_como_prestador[0]);
-          }
-          if (response.data.contratos_como_cliente && response.data.contratos_como_cliente.length > 0) {
-            console.log("Primeiro contrato cliente:", response.data.contratos_como_cliente[0]);
-          }
-          
           setContratosCliente(response.data.contratos_como_cliente || []);
           setContratosPrestador(response.data.contratos_como_prestador || []);
           setContratos(response.data.contratos || response.data.dados || response.data || []);
@@ -261,6 +308,7 @@ function PerfilUsuario() {
       .then(userAddressFromProfile => {
         if (userAddressFromProfile && isMounted) {
           fetchUserContracts(userAddressFromProfile);
+          fetchNegociacoesPendentes(userAddressFromProfile);
         }
         fetchAllCategories();
       })
@@ -404,24 +452,43 @@ function PerfilUsuario() {
       return; 
     }
 
+    console.log("=== INICIANDO DEPÓSITO ===");
+    console.log("addressContrato:", addressContrato);
+    console.log("addressCliente:", addressCliente);
+    console.log("contratoAtual:", contratoAtual);
+
     try {
       const enderecoContrato = addressContrato;
       
       if (!enderecoContrato) {
-        alert('Endereço do contrato não disponível');
+        console.error('❌ Endereço do contrato não disponível');
+        alert('Endereço do contrato não disponível. Verifique o console para detalhes.');
         return;
       }
 
-      console.log('Iniciando depósito ETH para contrato:', enderecoContrato);
+      // Verificar se temos um endereço válido da blockchain
+      if (!enderecoContrato.startsWith('0x') || enderecoContrato.length !== 42) {
+        console.error('❌ Endereço inválido:', enderecoContrato);
+        alert(`Endereço do contrato inválido: ${enderecoContrato}\nDeve ser um endereço Ethereum válido (0x + 40 caracteres hex).`);
+        return;
+      }
+
+      console.log('✅ Enviando requisição para:', `${API_BASE_URL}/contrato/${enderecoContrato}/depositar`);
+      console.log('✅ Payload:', { cliente_addr: addressCliente });
 
       // 1. Preparar transação de depósito
       const response = await axios.post(
         `${API_BASE_URL}/contrato/${enderecoContrato}/depositar`,
-        { cliente_addr: addressCliente }, // Opcional
-        { headers: { 'Authorization': `Bearer ${token}` } }
+        { cliente_addr: addressCliente },
+        { 
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          } 
+        }
       );
 
-      console.log("Resposta do backend:", response.data);
+      console.log("✅ Resposta do backend:", response.data);
 
       if (response.data.transaction) {
         // 2. Verificar se MetaMask está disponível
@@ -436,6 +503,7 @@ function PerfilUsuario() {
           const confirmar = window.confirm(
             `${response.data.instructions.pt}\n\n` +
             `Valor a ser depositado: ${valorEth} ETH\n\n` +
+            `Contrato: ${enderecoContrato}\n\n` +
             `Deseja continuar com o depósito?`
           );
           
@@ -447,7 +515,7 @@ function PerfilUsuario() {
             params: [response.data.transaction],
           });
 
-          console.log('Transação de depósito enviada, txHash:', txHash);
+          console.log('✅ Transação de depósito enviada, txHash:', txHash);
           
           // 5. Feedback para o usuário
           alert(`Depósito ETH enviado com sucesso!\n\nHash: ${txHash}\n\nAguarde a confirmação na blockchain.`);
@@ -475,11 +543,11 @@ function PerfilUsuario() {
             }
           };
 
-          // Verificar confirmação após 15 segundos (ETH leva mais tempo)
+          // Verificar confirmação após 15 segundos
           setTimeout(aguardarConfirmacao, 15000);
 
         } catch (metamaskError) {
-          console.error('Erro no MetaMask:', metamaskError);
+          console.error('❌ Erro no MetaMask:', metamaskError);
           
           if (metamaskError.code === 4001) {
             alert('Transação cancelada pelo usuário.');
@@ -490,16 +558,23 @@ function PerfilUsuario() {
           }
         }
       } else {
+        console.error('❌ Dados da transação não recebidos');
         alert('Erro: Dados da transação não recebidos do backend');
       }
 
     } catch (error) {
-      console.error("Erro ao tentar depositar fundos:", error);
+      console.error("❌ Erro completo:", error);
       
       let mensagemErro = "Erro desconhecido ao depositar fundos";
       
       if (error.response) {
-        mensagemErro = error.response.data?.erro || error.response.data?.detalhes || mensagemErro;
+        console.log("❌ Resposta de erro do backend:", error.response);
+        console.log("❌ Status:", error.response.status);
+        console.log("❌ Data:", error.response.data);
+        
+        mensagemErro = error.response.data?.erro || 
+                      error.response.data?.detalhes || 
+                      `Erro HTTP ${error.response.status}`;
         
         if (error.response.status === 401 || error.response.status === 422) {
           if (desconectarCarteira) desconectarCarteira();
@@ -507,12 +582,14 @@ function PerfilUsuario() {
           return;
         }
       } else if (error.request) {
+        console.log("❌ Erro de requisição:", error.request);
         mensagemErro = "Erro de rede. Verifique sua conexão.";
       } else {
+        console.log("❌ Erro:", error.message);
         mensagemErro = error.message;
       }
       
-      alert(`Erro ao depositar fundos: ${mensagemErro}`);
+      alert(`Erro ao depositar fundos: ${mensagemErro}\n\nVerifique o console para mais detalhes.`);
     }
   };
 
@@ -536,6 +613,50 @@ function PerfilUsuario() {
 
   return (
     <>
+      <Navbar />
+      
+      {/* Seção de Notificações de Negociação - POSICIONADA ABAIXO DA NAVBAR */}
+      {negociacoesPendentes.length > 0 && (
+        <div className="container_negociacoes_pendentes">
+          <div className="notificacao_negociacoes">
+            <div className="icone_notificacao">🔔</div>
+            <div className="texto_notificacao">
+              <strong>Você tem {negociacoesPendentes.length} negociação(ões) pendente(s)!</strong>
+              <div className="lista_negociacoes_simples">
+                {negociacoesPendentes.map((negociacao, index) => (
+                  <div key={negociacao._id || index} className="item_negociacao_simples">
+                    <span>
+                      {negociacao.cliente === usuarioData.address ? 
+                        `Proposta para ${formatarEndereco(negociacao.prestador)}` :
+                        `Proposta de ${formatarEndereco(negociacao.cliente)}`
+                      }
+                      {negociacao.proposta > 0 && ` - ${negociacao.proposta} ETH`}
+                    </span>
+                    <div className="botoes_negociacao_simples">
+                      <button 
+                        onClick={() => navigate(`/negociar/${negociacao._id}`)}
+                        className="botao_ver_negociacao_simples"
+                      >
+                        Ver Negociação →
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setNegociacaoSelecionada(negociacao);
+                          toggleOverlayUsuario();
+                        }}
+                        className="botao_detalhes_negociacao_simples"
+                      >
+                        Detalhes
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {overlayServicos && categoriaAtual && (
         <>
           <div className="overlay"></div>
@@ -580,55 +701,82 @@ function PerfilUsuario() {
           <div className="modal">
             <div onClick={toggleOverlayUsuario} className="overlay-perfil"></div>
             <div className="modal-content-perfil">
-              <h2>Detalhes do Contrato</h2>
+              <h2>Detalhes do {negociacaoSelecionada ? 'Negociação/Contrato' : 'Contrato'}</h2>
               {loadingDetalhes ? (
                 <div className="container_descricao_contrato">
                   <p>Carregando detalhes...</p>
                 </div>
               ) : (
                 <div className="container_descricao_contrato">
-                  <p><strong>Endereço do Contrato:</strong> {addressContrato ? (addressContrato.length > 20 ? formatarEndereco(addressContrato) : addressContrato) : 'N/A'}</p>
-                  <p><strong>Cliente:</strong> {addressCliente ? formatarEndereco(addressCliente) : 'N/A'}</p>
-                  <p><strong>Freelancer:</strong> {addressFreela ? formatarEndereco(addressFreela) : 'N/A'}</p>
-                  
-                  {contratoAtual && (
+                  {negociacaoSelecionada ? (
                     <>
-                      <p><strong>Status:</strong> {contratoAtual.status || 'N/A'}</p>
-                      <p><strong>Valor:</strong> {contratoAtual.valor || 'N/A'} ETH</p>
+                      <p><strong>ID da Negociação:</strong> {negociacaoSelecionada._id}</p>
+                      <p><strong>Cliente:</strong> {formatarEndereco(negociacaoSelecionada.cliente)}</p>
+                      <p><strong>Prestador:</strong> {formatarEndereco(negociacaoSelecionada.prestador)}</p>
+                      <p><strong>Proposta Atual:</strong> {negociacaoSelecionada.proposta} ETH</p>
+                      <p><strong>Status:</strong> {negociacaoSelecionada.valor_final === 0 ? 'Em negociação' : 'Finalizada'}</p>
                     </>
-                  )}
-                  
-                  {negociacaoAssociada && (
-                    <div style={{marginTop: '10px', padding: '10px', background: '#e3f2fd', borderRadius: '4px'}}>
-                      <p><strong>📋 Dados da Negociação Associada:</strong></p>
-                      <p><small>ID Negociação: {negociacaoAssociada._id}</small></p>
-                      <p><small>Proposta: {negociacaoAssociada.proposta} ETH</small></p>
-                    </div>
+                  ) : (
+                    <>
+                      <p><strong>Endereço do Contrato:</strong> {addressContrato ? (addressContrato.length > 20 ? formatarEndereco(addressContrato) : addressContrato) : 'N/A'}</p>
+                      <p><strong>Cliente:</strong> {addressCliente ? formatarEndereco(addressCliente) : 'N/A'}</p>
+                      <p><strong>Freelancer:</strong> {addressFreela ? formatarEndereco(addressFreela) : 'N/A'}</p>
+                      
+                      {contratoAtual && (
+                        <>
+                          <p><strong>Status:</strong> {contratoAtual.status || 'N/A'}</p>
+                          <p><strong>Valor:</strong> {contratoAtual.valor || 'N/A'} ETH</p>
+                        </>
+                      )}
+                      
+                      {negociacaoAssociada && (
+                        <div style={{marginTop: '10px', padding: '10px', background: '#e3f2fd', borderRadius: '4px'}}>
+                          <p><strong>📋 Dados da Negociação Associada:</strong></p>
+                          <p><small>ID Negociação: {negociacaoAssociada._id}</small></p>
+                          <p><small>Proposta: {negociacaoAssociada.proposta} ETH</small></p>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               )}
 
               <div className='container_botoes_contrato'>
-                <button onClick={handleDepositar} className="botao_opcao_contrato">
-                  Depositar ETH
-                </button>
-                {negociacaoAssociada && (
+                {negociacaoSelecionada ? (
                   <button 
-                    onClick={() => navigate(`/negociar/${negociacaoAssociada._id}`)}
+                    onClick={() => navigate(`/negociar/${negociacaoSelecionada._id}`)}
                     className="botao_opcao_contrato"
-                    style={{marginLeft: '10px', background: '#2196F3'}}
                   >
-                    Ver Negociação
+                    Ir para Negociação
                   </button>
+                ) : (
+                  <>
+                    <button onClick={handleDepositar} className="botao_opcao_contrato">
+                      Depositar Fundos
+                    </button>
+                    {negociacaoAssociada && (
+                      <button 
+                        onClick={() => navigate(`/negociar/${negociacaoAssociada._id}`)}
+                        className="botao_opcao_contrato"
+                        style={{marginLeft: '10px', background: '#2196F3'}}
+                      >
+                        Ver Negociação
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
-              <button onClick={toggleOverlayUsuario} className="botao_fechar_modal_perfil">Fechar</button>
+              <button onClick={() => {
+                toggleOverlayUsuario();
+                setNegociacaoSelecionada(null); // Limpar dados da negociação
+              }} className="botao_fechar_modal_perfil">
+                Fechar
+              </button>
             </div>
           </div>
         </>
       )}
       
-      <Navbar />
       <div className="container_pagina_perfil">
         <div className="container_perfil">
           <div className="div_foto_perfil">
@@ -807,7 +955,7 @@ function PerfilUsuario() {
               <div className="lista_contratos" key={contrato._id || contrato.id_contrato}>
                 <div className="contrato">
                   <div className="info_contrato">
-                    <p className="titulo_contrato">{formatarEndereco(contrato.address_contrato)}</p>
+                    <p className="titulo_contrato">{formatarEndereco(contrato.contract_address)}</p>
                     <p className="desc_contrato_item">Status: {contrato.status}</p>
                     <p className="desc_contrato_item">Valor: {contrato.valor} ETH</p>
                   </div>
@@ -835,7 +983,7 @@ function PerfilUsuario() {
               <div className="lista_contratos" key={contrato._id || contrato.id_contrato}>
                 <div className="contrato">
                   <div className="info_contrato">
-                    <p className="titulo_contrato">{formatarEndereco(contrato.address_contrato)}</p>
+                    <p className="titulo_contrato">{formatarEndereco(contrato.contract_address)}</p>
                     <p className="desc_contrato_item">Status: {contrato.status}</p>
                     <p className="desc_contrato_item">Valor: {contrato.valor} ETH</p>
                   </div>
