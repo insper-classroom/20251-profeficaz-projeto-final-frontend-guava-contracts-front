@@ -26,7 +26,7 @@ function PerfilUsuario() {
   const [servicosPorCategoria, setServicosPorCategoria] = useState({});
   const [overlayServicos, setOverlayServicos] = useState(false);
   const [categoriaAtual, setCategoriaAtual] = useState(null);
-  const [servicosSelecionados, setServicosSelecionados] = useState({});
+  const [servicosSelecionados, setServicosSelecionados] = useState([]);
   const [usuarioData, setUsuarioData] = useState({
     nome: "",
     profissao: "",
@@ -78,51 +78,62 @@ function PerfilUsuario() {
     setErrorPage(null);
     let isMounted = true;
 
-  const fetchUserProfile = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/perfilusuario`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (isMounted) {
-        const perfil = response.data;
-        setUsuarioData({
-          nome: perfil.nome || "",
-          profissao: perfil.profissao || "Não informado",
-          tempo_atuacao: perfil.tempo_atuacao || "Não informado",
-          descricao: perfil.descricao || "Nenhuma descrição.",
-          avaliacao: perfil.avaliacao_media || 0,
-          created_at: perfil.created_at,
-          address: perfil.address,
-          categorias_servico: perfil.categorias_servico || [],
-          servicos: perfil.servicos || {}
+    const fetchUserProfile = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/perfilusuario`, {
+          headers: { 'Authorization': `Bearer ${token}` }
         });
-        
-        // Inicializar formulário com nomes de categorias
-        setEditFormData({ 
-          nome: perfil.nome || "",
-          profissao: perfil.profissao || "",
-          descricao: perfil.descricao || "",
-          categorias_servico: perfil.categorias_servico || []
-        });
-        
-        // Inicializar serviços selecionados
-        setServicosSelecionados(perfil.servicos || {});
-        
-        return perfil.address;
-      }
-    } catch (error) {
-      if (isMounted) {
-        console.error("Erro ao buscar dados do perfil:", error.response?.data || error.message);
-        if (error.response && (error.response.status === 401 || error.response.status === 422)) {
-          if (desconectarCarteira) desconectarCarteira();
-          navigate('/');
-        } else {
-          setErrorPage("Erro ao carregar dados do perfil. Tente novamente mais tarde.");
+        if (isMounted) {
+          const perfil = response.data;
+          
+          console.log("Perfil recebido do backend:", perfil);
+          
+          setUsuarioData({
+            nome: perfil.nome || "",
+            profissao: perfil.profissao || "Não informado",
+            tempo_atuacao: perfil.tempo_atuacao || "Não informado",
+            descricao: perfil.descricao || "Nenhuma descrição.",
+            avaliacao: perfil.avaliacao_media || 0,
+            created_at: perfil.created_at,
+            address: perfil.address,
+            categorias_servico: perfil.categorias_servico || [],
+            servicos: perfil.servicos || []
+          });
+          
+          setEditFormData({ 
+            nome: perfil.nome || "",
+            profissao: perfil.profissao || "",
+            descricao: perfil.descricao || "",
+            categorias_servico: perfil.categorias_servico || []
+          });
+          
+          // Initialize selected services as simple array
+          setServicosSelecionados(perfil.servicos || []);
+          
+          console.log("Serviços inicializados:", perfil.servicos);
+          
+          // Load servicosPorCategoria for all user categories
+          if (perfil.categorias_servico && perfil.categorias_servico.length > 0) {
+            for (const categoria of perfil.categorias_servico) {
+              await fetchServicosCategoria(categoria);
+            }
+          }
+          
+          return perfil.address;
         }
-        throw error;
+      } catch (error) {
+        if (isMounted) {
+          console.error("Erro ao buscar dados do perfil:", error.response?.data || error.message);
+          if (error.response && (error.response.status === 401 || error.response.status === 422)) {
+            if (desconectarCarteira) desconectarCarteira();
+            navigate('/');
+          } else {
+            setErrorPage("Erro ao carregar dados do perfil. Tente novamente mais tarde.");
+          }
+          throw error;
+        }
       }
-    }
-  };
+    };
 
     const fetchUserContracts = async (userAddress) => {
       if (!userAddress) return;
@@ -245,17 +256,12 @@ function PerfilUsuario() {
 
   const handleServicoChange = (servicoNome) => {
     setServicosSelecionados(prev => {
-      const servicosAtual = prev[categoriaAtual.Name] || [];
-      const servicosAtualizados = servicosAtual.includes(servicoNome)
-        ? servicosAtual.filter(s => s !== servicoNome)
-        : [...servicosAtual, servicoNome];
-      
-      return {
-        ...prev,
-        [categoriaAtual.Name]: servicosAtualizados
-      };
+      return prev.includes(servicoNome)
+        ? prev.filter(s => s !== servicoNome)
+        : [...prev, servicoNome];
     });
   };
+
 
   const handleSaveProfile = async () => {
     const token = localStorage.getItem(AUTH_TOKEN_KEY);
@@ -266,14 +272,17 @@ function PerfilUsuario() {
     }
     setIsSaving(true);
     setEditError(null);
+    
     try {
       const payload = {
         nome: editFormData.nome.trim() === "" ? null : editFormData.nome.trim(),
         profissao: editFormData.profissao.trim(),
         descricao: editFormData.descricao.trim(),
-        categorias_servico: editFormData.categorias_servico || [], // Já são nomes
-        servicos: servicosSelecionados
+        categorias_servico: editFormData.categorias_servico || [],
+        servicos: servicosSelecionados // Send directly as array of service names
       };
+
+      console.log("Payload sendo enviado:", payload);
 
       const response = await axios.put(`${API_BASE_URL}/perfilusuario`, payload, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -287,8 +296,10 @@ function PerfilUsuario() {
         profissao: updatedProfile.profissao || payload.profissao || "Não informado",
         descricao: updatedProfile.descricao || payload.descricao || "Nenhuma descrição.",
         categorias_servico: updatedProfile.categorias_servico || payload.categorias_servico || [],
-        servicos: updatedProfile.servicos || payload.servicos || {}
+        servicos: updatedProfile.servicos || payload.servicos || []
       }));
+
+      console.log("Perfil atualizado:", updatedProfile);
       setIsEditing(false);
     } catch (error) {
       console.error("Erro ao salvar perfil:", error.response?.data || error.message);
@@ -358,7 +369,7 @@ function PerfilUsuario() {
                       <input
                         type="checkbox"
                         id={`servico-${categoriaAtual._id}-${index}`}
-                        checked={(servicosSelecionados[categoriaAtual.Name] || []).includes(servico)}
+                        checked={servicosSelecionados.includes(servico)}
                         onChange={() => handleServicoChange(servico)}
                       />
                       <label htmlFor={`servico-${categoriaAtual._id}-${index}`}>{servico}</label>
@@ -392,7 +403,6 @@ function PerfilUsuario() {
               <p><strong>ID do Contrato:</strong> {addressContrato}</p>
               <p><strong>Cliente:</strong> {formatarEndereco(addressCliente)}</p>
               <p><strong>Freelancer:</strong> {formatarEndereco(addressFreela)}</p>
-              {/* You can add more contract details here, e.g., status, valor */}
             </div>
 
             <div className='container_botoes_contrato'>
@@ -482,9 +492,17 @@ function PerfilUsuario() {
                                 onClick={() => abrirOverlayServicos(cat)}
                               >
                                 Selecionar Serviços
-                                {servicosSelecionados[cat.Name] && servicosSelecionados[cat.Name].length > 0 && (
-                                  <span className="servicos-count">({servicosSelecionados[cat.Name].length})</span>
-                                )}
+                                {(() => {
+                                  const servicosDaCategoria = servicosPorCategoria[cat.Name] || [];
+                                  const servicosSelecionadosDaCategoria = servicosSelecionados.filter(servico => 
+                                    servicosDaCategoria.includes(servico)
+                                  );
+                                  return servicosSelecionadosDaCategoria.length > 0 && (
+                                    <div className="servicos-selecionados-preview">
+                                      <small>Serviços: {servicosSelecionadosDaCategoria.join(', ')}</small>
+                                    </div>
+                                  );
+                                })()}
                               </button>
                             )}
                           </div>
@@ -524,22 +542,28 @@ function PerfilUsuario() {
                     <p className="desc_perfil"><strong>Categorias e Serviços:</strong></p>
                     {usuarioData.categorias_servico && usuarioData.categorias_servico.length > 0 ? (
                       <div className="user-categories-list">
-                        {usuarioData.categorias_servico.map((categoriaNome, index) => (
-                          <div key={index} className="user-category-container">
-                            <div className="user-category-item">
-                              <strong>{categoriaNome}</strong>
-                            </div>
-                            {usuarioData.servicos && 
-                            usuarioData.servicos[categoriaNome] && 
-                            usuarioData.servicos[categoriaNome].length > 0 && (
-                              <div className="user-servicos-list">
-                                {usuarioData.servicos[categoriaNome].map((servico, idx) => (
-                                  <span key={idx} className="user-servico-tag">{servico}</span>
-                                ))}
+                        {usuarioData.categorias_servico.map((categoriaNome, index) => {
+                          // Filtrar serviços que pertencem a esta categoria
+                          const servicosDaCategoria = servicosPorCategoria[categoriaNome] || [];
+                          const servicosDoUsuarioNaCategoria = (usuarioData.servicos || []).filter(servico =>
+                            servicosDaCategoria.includes(servico)
+                          );
+                          
+                          return (
+                            <div key={index} className="user-category-container">
+                              <div className="user-category-item">
+                                <strong>{categoriaNome}</strong>
                               </div>
-                            )}
-                          </div>
-                        ))}
+                              {servicosDoUsuarioNaCategoria.length > 0 && (
+                                <div className="user-servicos-list">
+                                  {servicosDoUsuarioNaCategoria.map((servico, idx) => (
+                                    <span key={idx} className="user-servico-tag">{servico}</span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     ) : (
                       <p className="desc_perfil_item">Nenhuma categoria selecionada.</p>
