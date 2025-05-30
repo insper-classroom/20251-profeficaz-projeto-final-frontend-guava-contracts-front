@@ -80,8 +80,14 @@ function PerfilUsuario() {
       
       if (response.data && response.data.negociacoes) {
         const negociacaoEncontrada = response.data.negociacoes.find(neg => {
-          const isUserInvolved = neg.cliente === userAddress || neg.prestador === userAddress;
-          return isUserInvolved;
+          const valorCoincidir = contrato.valor && neg.valor_final && 
+                                Math.abs(parseFloat(contrato.valor) - parseFloat(neg.valor_final)) < 0.001;
+          
+          const isFinalizada = neg.valor_final > 0;
+          if (valorCoincidir && isFinalizada) {
+            return true;
+          }
+          return isFinalizada;
         });
         
         return negociacaoEncontrada;
@@ -101,45 +107,38 @@ function PerfilUsuario() {
     // Debug: ver estrutura completa do contrato
     console.log("Contrato completo:", contrato);
     
-    const contratoAddress = contrato.contract_address
-    const contratoId = contrato.id_contrato || contrato._id; // ID do banco
+    const contratoAddress = contrato.contract_address;
+    const contratoId = contrato.id_contrato || contrato._id;
     
     console.log("Endereço do contrato extraído:", contratoAddress);
     console.log("ID do contrato:", contratoId);
     
-    const clienteAddress = contrato.address_cliente || 
-                          contrato.cliente || 
-                          (contrato.address && contrato.address.id_cliente);
-    const freelaAddress = contrato.address_prestador || 
-                        contrato.prestador || 
-                        (contrato.address && contrato.address.id_freela);
+    // CORRIGIDO: Pegar endereços diretamente do contrato primeiro
+    let clienteAddress = contrato.cliente_address || 
+                        contrato.cliente || 
+                        (contrato.address && contrato.address.id_cliente);
+    let freelaAddress = contrato.prestador_address || 
+                      contrato.prestador || 
+                      contrato.freelancer ||
+                      (contrato.address && contrato.address.id_freela);
 
-    console.log("Endereços extraídos:", {
+    console.log("Endereços extraídos do contrato:", {
       contrato: contratoAddress,
       cliente: clienteAddress,
       freelancer: freelaAddress
     });
 
-    // Definir o endereço da blockchain para exibição
-    setAddressContrato(contratoAddress); // Agora usa o endereço da blockchain
+    // SEMPRE buscar da negociação para garantir que temos os endereços corretos
+    const negociacao = await buscarNegociacaoDoContrato(contrato, usuarioData.address);
+    if (negociacao) {
+      console.log("Negociação encontrada:", negociacao);
+      setNegociacaoAssociada(negociacao);
+    }
+
+    // Definir os endereços finais
+    setAddressContrato(contratoAddress);
     setAddressCliente(clienteAddress);
     setAddressFreela(freelaAddress);
-
-    // Se não temos os endereços do contrato, buscar da negociação
-    if (!clienteAddress || !freelaAddress) {
-      console.log("Endereços não encontrados no contrato, buscando na negociação...");
-      
-      const negociacao = await buscarNegociacaoDoContrato(contrato, usuarioData.address);
-      if (negociacao) {
-        setNegociacaoAssociada(negociacao);
-        setAddressCliente(negociacao.cliente);
-        setAddressFreela(negociacao.prestador);
-        console.log("Endereços encontrados na negociação:", {
-          cliente: negociacao.cliente,
-          prestador: negociacao.prestador
-        });
-      }
-    }
 
     setLoadingDetalhes(false);
     toggleOverlayUsuario();
@@ -219,7 +218,18 @@ function PerfilUsuario() {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (isMounted) {
-          console.log("Contratos recebidos:", response.data);
+          console.log("Resposta completa dos contratos:", response.data);
+          console.log("Contratos como prestador:", response.data.contratos_como_prestador);
+          console.log("Contratos como cliente:", response.data.contratos_como_cliente);
+          
+          // Log detalhado de cada contrato para ver a estrutura
+          if (response.data.contratos_como_prestador && response.data.contratos_como_prestador.length > 0) {
+            console.log("Primeiro contrato prestador:", response.data.contratos_como_prestador[0]);
+          }
+          if (response.data.contratos_como_cliente && response.data.contratos_como_cliente.length > 0) {
+            console.log("Primeiro contrato cliente:", response.data.contratos_como_cliente[0]);
+          }
+          
           setContratosCliente(response.data.contratos_como_cliente || []);
           setContratosPrestador(response.data.contratos_como_prestador || []);
           setContratos(response.data.contratos || response.data.dados || response.data || []);
@@ -389,22 +399,120 @@ function PerfilUsuario() {
   const handleDepositar = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem(AUTH_TOKEN_KEY);
-    if (!token) { navigate('/'); return; }
+    if (!token) { 
+      navigate('/'); 
+      return; 
+    }
+
     try {
-      // Se a API de depósito precisar do ID do banco ao invés do address, use contratoAtual.id_contrato
-      const idParaDeposito = contratoAtual?.id_contrato || contratoAtual?._id || addressContrato;
+      const enderecoContrato = addressContrato;
       
-      const response = await axios.post(`${API_BASE_URL}/contrato/${idParaDeposito}/depositar`,
-        { address_cliente: addressCliente },
+      if (!enderecoContrato) {
+        alert('Endereço do contrato não disponível');
+        return;
+      }
+
+      console.log('Iniciando depósito ETH para contrato:', enderecoContrato);
+
+      // 1. Preparar transação de depósito
+      const response = await axios.post(
+        `${API_BASE_URL}/contrato/${enderecoContrato}/depositar`,
+        { cliente_addr: addressCliente }, // Opcional
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
-      console.log("deposito feito com sucesso", response.data);
-    } catch (error) {
-      console.error("Erro ao tentar depositar fundos", error.response ? error.response.data : error.message);
-      if (error.response && (error.response.status === 401 || error.response.status === 422)) {
-        if (desconectarCarteira) desconectarCarteira();
-        navigate('/');
+
+      console.log("Resposta do backend:", response.data);
+
+      if (response.data.transaction) {
+        // 2. Verificar se MetaMask está disponível
+        if (!window.ethereum) {
+          alert('MetaMask não detectado. Por favor, instale a extensão MetaMask.');
+          return;
+        }
+
+        try {
+          // 3. Mostrar informações sobre o depósito
+          const valorEth = response.data.valor_requerido_eth;
+          const confirmar = window.confirm(
+            `${response.data.instructions.pt}\n\n` +
+            `Valor a ser depositado: ${valorEth} ETH\n\n` +
+            `Deseja continuar com o depósito?`
+          );
+          
+          if (!confirmar) return;
+
+          // 4. Enviar transação via MetaMask
+          const txHash = await window.ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [response.data.transaction],
+          });
+
+          console.log('Transação de depósito enviada, txHash:', txHash);
+          
+          // 5. Feedback para o usuário
+          alert(`Depósito ETH enviado com sucesso!\n\nHash: ${txHash}\n\nAguarde a confirmação na blockchain.`);
+          
+          // 6. Aguardar confirmação
+          const aguardarConfirmacao = async () => {
+            try {
+              const receipt = await window.ethereum.request({
+                method: 'eth_getTransactionReceipt',
+                params: [txHash]
+              });
+              
+              if (receipt && receipt.status === '0x1') {
+                alert('Depósito confirmado com sucesso! O contrato agora está financiado.');
+                
+                // Recarregar dados do contrato
+                if (contratoAtual) {
+                  abrirDetalhesContrato(contratoAtual);
+                }
+              } else if (receipt && receipt.status === '0x0') {
+                alert('Transação falhou. Verifique o console para mais detalhes.');
+              }
+            } catch (error) {
+              console.error('Erro ao verificar confirmação:', error);
+            }
+          };
+
+          // Verificar confirmação após 15 segundos (ETH leva mais tempo)
+          setTimeout(aguardarConfirmacao, 15000);
+
+        } catch (metamaskError) {
+          console.error('Erro no MetaMask:', metamaskError);
+          
+          if (metamaskError.code === 4001) {
+            alert('Transação cancelada pelo usuário.');
+          } else if (metamaskError.code === -32603) {
+            alert('Erro na transação. Verifique se você tem ETH suficiente para o depósito e taxa de gas.');
+          } else {
+            alert('Erro ao enviar transação: ' + metamaskError.message);
+          }
+        }
+      } else {
+        alert('Erro: Dados da transação não recebidos do backend');
       }
+
+    } catch (error) {
+      console.error("Erro ao tentar depositar fundos:", error);
+      
+      let mensagemErro = "Erro desconhecido ao depositar fundos";
+      
+      if (error.response) {
+        mensagemErro = error.response.data?.erro || error.response.data?.detalhes || mensagemErro;
+        
+        if (error.response.status === 401 || error.response.status === 422) {
+          if (desconectarCarteira) desconectarCarteira();
+          navigate('/');
+          return;
+        }
+      } else if (error.request) {
+        mensagemErro = "Erro de rede. Verifique sua conexão.";
+      } else {
+        mensagemErro = error.message;
+      }
+      
+      alert(`Erro ao depositar fundos: ${mensagemErro}`);
     }
   };
 
@@ -479,7 +587,7 @@ function PerfilUsuario() {
                 </div>
               ) : (
                 <div className="container_descricao_contrato">
-                  <p><strong>Endereço do Contrato:</strong> {addressContrato || 'N/A'}</p>
+                  <p><strong>Endereço do Contrato:</strong> {addressContrato ? (addressContrato.length > 20 ? formatarEndereco(addressContrato) : addressContrato) : 'N/A'}</p>
                   <p><strong>Cliente:</strong> {addressCliente ? formatarEndereco(addressCliente) : 'N/A'}</p>
                   <p><strong>Freelancer:</strong> {addressFreela ? formatarEndereco(addressFreela) : 'N/A'}</p>
                   
@@ -502,7 +610,7 @@ function PerfilUsuario() {
 
               <div className='container_botoes_contrato'>
                 <button onClick={handleDepositar} className="botao_opcao_contrato">
-                  Depositar Fundos
+                  Depositar ETH
                 </button>
                 {negociacaoAssociada && (
                   <button 
