@@ -1,13 +1,12 @@
 import '../styles/ProcuraPerfilporServico.css'
 import Navbar from '../components/Navbar'
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
 
 function UsuariosPorServico () {
   const { title } = useParams()
   const [usuarios, setUsuarios] = useState([])
-  const [nomeServico, setNomeServico] = useState('')
 
   const API_BASE_URL = 'http://127.0.0.1:5000';
 

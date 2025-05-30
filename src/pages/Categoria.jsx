@@ -1,19 +1,15 @@
 import '../styles/Categoria.css'
 import Navbar from '../components/Navbar'
-import React from 'react'
 import { useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import axios from 'axios';
-
+  
 
 function Categoria () {
   
   const [servicos, setServicos] = useState([]);
   const [nomeCategoria, setNomeCategoria] = useState('');
-  const {id} = useParams()
-  const rows = [
-    {"address": "6809410ee314814015b7f9ca" ,"nome": "Thales", "tempoDeAtuacao": "2 anos", "avaliacao": 4.5},
-  ]
+  const {id} = useParams();
 
   const API_BASE_URL = 'http://127.0.0.1:5000';
 
