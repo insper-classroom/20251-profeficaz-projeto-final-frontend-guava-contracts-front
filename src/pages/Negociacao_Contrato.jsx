@@ -108,7 +108,7 @@ function PaginaNegociacao() {
       // Cliente fez proposta, esperando contraproposta do freelancer
       if (role === 'freelancer') {
         setIsMyTurn(true);
-        setStatusMessage(`Sua vez (Freelancer). Cliente propôs R$ ${proposta.toFixed(2)}`);
+        setStatusMessage(`Sua vez (Freelancer). Cliente propôs ${proposta.toFixed(4)} ETH`);
       } else {
         setIsMyTurn(false);
         setStatusMessage('Aguardando resposta do Freelancer.');
@@ -117,7 +117,7 @@ function PaginaNegociacao() {
       // Freelancer fez contraproposta, esperando decisão do cliente
       if (role === 'client') {
         setIsMyTurn(true);
-        setStatusMessage(`Sua vez (Cliente). Freelancer contrapropôs R$ ${contrata_proposta.toFixed(2)}`);
+        setStatusMessage(`Sua vez (Cliente). Freelancer contrapropôs ${contrata_proposta.toFixed(4)} ETH`);
       } else {
         setIsMyTurn(false);
         setStatusMessage('Aguardando decisão do Cliente.');
@@ -250,7 +250,6 @@ function PaginaNegociacao() {
           alert("A conta conectada no MetaMask é diferente da conta logada. Por favor, troque para a conta correta.");
           return;
         }
-
         // Passo 1: Solicitar ao backend para preparar a transação
         console.log("Preparando transação para o contrato...");
         const dadosParaContrato = {
@@ -455,17 +454,17 @@ function PaginaNegociacao() {
           <ul>
             {negotiationDetails.proposta > 0 && (
               <li className="history-item item-client">
-                <strong>Cliente</strong> propôs R$ {negotiationDetails.proposta.toFixed(2)}
+                <strong>Cliente</strong> propôs {negotiationDetails.proposta.toFixed(4)} ETH
               </li>
             )}
             {negotiationDetails.contrata_proposta > 0 && (
               <li className="history-item item-freelancer">
-                <strong>Freelancer</strong> contrapropôs R$ {negotiationDetails.contrata_proposta.toFixed(2)}
+                <strong>Freelancer</strong> contrapropôs {negotiationDetails.contrata_proposta.toFixed(4)} ETH
               </li>
             )}
             {negotiationDetails.valor_final > 0 && (
               <li className="history-item item-accepted">
-                <strong>Negociação aceita</strong> por R$ {negotiationDetails.valor_final.toFixed(2)}
+                <strong>Negociação aceita</strong> por {negotiationDetails.valor_final.toFixed(4)} ETH
               </li>
             )}
             {negotiationDetails.valor_final === -1 && (
