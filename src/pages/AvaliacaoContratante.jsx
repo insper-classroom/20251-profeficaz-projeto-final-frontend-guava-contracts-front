@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import '../styles/AvaliacaoContratante.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
 
 
 function AvaliacaoContratante() {
+  const { contratoId } = useParams();
   const [nota, setNota] = useState(0);
   const [descricao, setDescricao] = useState('');
   const navigate = useNavigate();
@@ -17,6 +19,18 @@ function AvaliacaoContratante() {
     console.log('Nota:', nota);
     console.log('Descrição:', descricao);
     alert('Avaliação enviada com sucesso!');
+    axios.put(`http://localhost:3000/avaliacaocontratante/${contratoId}`, {
+      avaliacao: {
+        nota
+      },
+    })
+    .then(() => {
+      console.log('Avaliação atualizada com sucesso');
+    })
+    .catch((error) => {
+      console.error('Erro ao atualizar avaliação:', error);
+      alert('Erro ao enviar avaliação. Tente novamente mais tarde.');
+    });
     setNota(0);
     setDescricao('');
     navigate('/');

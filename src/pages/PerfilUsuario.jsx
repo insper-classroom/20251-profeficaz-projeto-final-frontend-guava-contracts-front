@@ -1294,6 +1294,7 @@ function PerfilUsuario() {
                     >
                       Visualizar Detalhes
                     </button>
+                    <a href={`${API_BASE_URL}/avaliacaofreela/${addressContrato}`} className="botao_visualizar_contrato">Avalie o cliente!</a>
                   </div>
                 </div>
               </div>
@@ -1322,7 +1323,7 @@ function PerfilUsuario() {
                     >
                       Visualizar Detalhes
                     </button>
-                    <a href={`${API_BASE_URL}/avaliacaofreela/${addressContrato}`}>Avalie o prestador(a)!</a>
+                    <a href={`${API_BASE_URL}/avaliacaocontratante/${addressContrato}`} className="botao_visualizar_contrato">Avalie o prestador(a)!</a>
                   </div>
                 </div>
               </div>
