@@ -135,17 +135,7 @@ function PerfilUsuario() {
     setNegociacaoAssociada(null);
     setNegociacaoSelecionada(null); // Limpar negociação selecionada
     
-    // Debug: ver estrutura completa do contrato
-    console.log("=== DEBUG CONTRATO ===");
-    console.log("Contrato completo:", contrato);
-    console.log("contract_address:", contrato.contract_address);
-    console.log("=====================");
-    
-    // Usar contract_address primeiro (campo correto)
-    const contratoAddress = contrato.contract_address || 
-                            contrato.address_contrato || 
-                            contrato.endereco_contrato ||
-                            contrato.blockchain_address;
+    const contratoAddress = contrato.contract_address
     
     const contratoId = contrato.id_contrato || contrato._id;
     
@@ -161,10 +151,12 @@ function PerfilUsuario() {
       console.log('✅ Endereço válido encontrado:', contratoAddress);
     }
     
-    let clienteAddress = contrato.address_cliente ||
+    let clienteAddress = contrato.cliente_address ||
+                        contrato.address_cliente ||
                         contrato.cliente || 
                         (contrato.address && contrato.address.id_cliente);
-    let freelaAddress = contrato.address_prestador ||
+    let freelaAddress = contrato.prestador_address ||
+                      contrato.address_prestador ||
                       contrato.prestador || 
                       contrato.freelancer ||
                       (contrato.address && contrato.address.id_freela);
@@ -593,6 +585,315 @@ function PerfilUsuario() {
     }
   };
 
+  // NOVA FUNÇÃO: Confirmar conclusão como cliente
+  const handleConfirmarCliente = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    if (!token) { 
+      navigate('/'); 
+      return; 
+    }
+
+    console.log("=== CONFIRMAÇÃO CLIENTE ===");
+    console.log("addressContrato:", addressContrato);
+    console.log("addressCliente:", addressCliente);
+
+    try {
+      const enderecoContrato = addressContrato;
+      
+      if (!enderecoContrato) {
+        alert('Endereço do contrato não disponível.');
+        return;
+      }
+
+      if (!enderecoContrato.startsWith('0x') || enderecoContrato.length !== 42) {
+        alert('Endereço do contrato inválido.');
+        return;
+      }
+
+      console.log('✅ Enviando requisição para confirmação do cliente');
+
+      // 1. Preparar transação de confirmação
+      const response = await axios.post(
+        `${API_BASE_URL}/contrato/${enderecoContrato}/cliente/confirmar`,
+        { cliente_addr: addressCliente },
+        { 
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          } 
+        }
+      );
+
+      console.log("✅ Resposta do backend:", response.data);
+
+      if (response.data.transaction) {
+        if (!window.ethereum) {
+          alert('MetaMask não detectado. Por favor, instale a extensão MetaMask.');
+          return;
+        }
+
+        try {
+          const confirmar = window.confirm(
+            `Confirmar conclusão do serviço como CLIENTE?\n\n` +
+            `Esta ação indica que você está satisfeito com o serviço prestado.\n\n` +
+            `Contrato: ${enderecoContrato}\n\n` +
+            `Deseja continuar?`
+          );
+          
+          if (!confirmar) return;
+
+          // 2. Enviar transação via MetaMask
+          const txHash = await window.ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [response.data.transaction],
+          });
+
+          console.log('✅ Transação de confirmação do cliente enviada, txHash:', txHash);
+          
+          alert(`Confirmação enviada com sucesso!\n\nHash: ${txHash}\n\nAguarde a confirmação na blockchain.`);
+
+          // 3. Aguardar confirmação (opcional)
+          const aguardarConfirmacao = async () => {
+            try {
+              const receipt = await window.ethereum.request({
+                method: 'eth_getTransactionReceipt',
+                params: [txHash]
+              });
+              
+              if (receipt && receipt.status === '0x1') {
+                alert('Confirmação processada com sucesso na blockchain!');
+                
+                // Recarregar dados do contrato
+                if (contratoAtual) {
+                  abrirDetalhesContrato(contratoAtual);
+                }
+              } else if (receipt && receipt.status === '0x0') {
+                alert('Transação falhou. Verifique o console para mais detalhes.');
+              }
+            } catch (error) {
+              console.error('Erro ao verificar confirmação:', error);
+            }
+          };
+
+          // Verificar confirmação após 15 segundos
+          setTimeout(aguardarConfirmacao, 15000);
+
+        } catch (metamaskError) {
+          console.error('❌ Erro no MetaMask:', metamaskError);
+          
+          // Tratamento melhorado de erros do MetaMask
+          let mensagemErro = 'Erro ao enviar transação';
+          
+          if (metamaskError.code === 4001) {
+            mensagemErro = 'Transação cancelada pelo usuário.';
+          } else if (metamaskError.code === -32603) {
+            mensagemErro = 'Erro na transação. Verifique se você tem ETH suficiente para a taxa de gas.';
+          } else if (metamaskError.code === -32602) {
+            mensagemErro = 'Parâmetros inválidos para a transação.';
+          } else if (metamaskError.message) {
+            // Verificar se message é string antes de usar métodos de string
+            if (typeof metamaskError.message === 'string') {
+              mensagemErro = metamaskError.message;
+            } else {
+              mensagemErro = 'Erro desconhecido do MetaMask: ' + JSON.stringify(metamaskError.message);
+            }
+          } else {
+            mensagemErro = 'Erro desconhecido do MetaMask: ' + JSON.stringify(metamaskError);
+          }
+          
+          alert(mensagemErro);
+        }
+      } else {
+        console.error('❌ Dados da transação não recebidos');
+        alert('Erro: Dados da transação não recebidos do backend');
+      }
+
+    } catch (error) {
+      console.error("❌ Erro na confirmação do cliente:", error);
+      
+      let mensagemErro = "Erro desconhecido";
+      
+      if (error.response) {
+        mensagemErro = error.response.data?.erro || 
+                      error.response.data?.detalhes || 
+                      `Erro HTTP ${error.response.status}`;
+        
+        if (error.response.status === 401 || error.response.status === 422) {
+          if (desconectarCarteira) desconectarCarteira();
+          navigate('/');
+          return;
+        }
+      } else if (error.request) {
+        mensagemErro = "Erro de rede. Verifique sua conexão.";
+      } else if (error.message) {
+        mensagemErro = error.message;
+      }
+      
+      alert(`Erro na confirmação: ${mensagemErro}`);
+    }
+  };
+
+  // NOVA FUNÇÃO: Confirmar conclusão como prestador
+  const handleConfirmarPrestador = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    if (!token) { 
+      navigate('/'); 
+      return; 
+    }
+
+    console.log("=== CONFIRMAÇÃO PRESTADOR ===");
+    console.log("addressContrato:", addressContrato);
+    console.log("addressFreela:", addressFreela);
+
+    try {
+      const enderecoContrato = addressContrato;
+      
+      if (!enderecoContrato) {
+        alert('Endereço do contrato não disponível.');
+        return;
+      }
+
+      if (!enderecoContrato.startsWith('0x') || enderecoContrato.length !== 42) {
+        alert('Endereço do contrato inválido.');
+        return;
+      }
+
+      console.log('✅ Enviando requisição para confirmação do prestador');
+
+      // 1. Preparar transação de confirmação
+      const response = await axios.post(
+        `${API_BASE_URL}/contrato/${enderecoContrato}/prestador/confirmar`,
+        { prestador_addr: addressFreela },
+        { 
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          } 
+        }
+      );
+
+      console.log("✅ Resposta do backend:", response.data);
+
+      if (response.data.transaction) {
+        if (!window.ethereum) {
+          alert('MetaMask não detectado. Por favor, instale a extensão MetaMask.');
+          return;
+        }
+
+        try {
+          const confirmar = window.confirm(
+            `Confirmar conclusão do serviço como PRESTADOR?\n\n` +
+            `Esta ação indica que você finalizou o trabalho acordado.\n\n` +
+            `Contrato: ${enderecoContrato}\n\n` +
+            `Deseja continuar?`
+          );
+          
+          if (!confirmar) return;
+
+          // 2. Enviar transação via MetaMask
+          const txHash = await window.ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [response.data.transaction],
+          });
+
+          console.log('✅ Transação de confirmação do prestador enviada, txHash:', txHash);
+          
+          alert(`Confirmação enviada com sucesso!\n\nHash: ${txHash}\n\nAguarde a confirmação na blockchain.`);
+
+          // 3. Aguardar confirmação (opcional)
+          const aguardarConfirmacao = async () => {
+            try {
+              const receipt = await window.ethereum.request({
+                method: 'eth_getTransactionReceipt',
+                params: [txHash]
+              });
+              
+              if (receipt && receipt.status === '0x1') {
+                alert('Confirmação processada com sucesso na blockchain!');
+                
+                // Recarregar dados do contrato
+                if (contratoAtual) {
+                  abrirDetalhesContrato(contratoAtual);
+                }
+              } else if (receipt && receipt.status === '0x0') {
+                alert('Transação falhou. Verifique o console para mais detalhes.');
+              }
+            } catch (error) {
+              console.error('Erro ao verificar confirmação:', error);
+            }
+          };
+
+          // Verificar confirmação após 15 segundos
+          setTimeout(aguardarConfirmacao, 15000);
+
+        } catch (metamaskError) {
+          console.error('❌ Erro no MetaMask:', metamaskError);
+          
+          // Tratamento melhorado de erros do MetaMask
+          let mensagemErro = 'Erro ao enviar transação';
+          
+          if (metamaskError.code === 4001) {
+            mensagemErro = 'Transação cancelada pelo usuário.';
+          } else if (metamaskError.code === -32603) {
+            mensagemErro = 'Erro na transação. Verifique se você tem ETH suficiente para a taxa de gas.';
+          } else if (metamaskError.code === -32602) {
+            mensagemErro = 'Parâmetros inválidos para a transação.';
+          } else if (metamaskError.message) {
+            // Verificar se message é string antes de usar métodos de string
+            if (typeof metamaskError.message === 'string') {
+              mensagemErro = metamaskError.message;
+            } else {
+              mensagemErro = 'Erro desconhecido do MetaMask: ' + JSON.stringify(metamaskError.message);
+            }
+          } else {
+            mensagemErro = 'Erro desconhecido do MetaMask: ' + JSON.stringify(metamaskError);
+          }
+          
+          alert(mensagemErro);
+        }
+      } else {
+        console.error('❌ Dados da transação não recebidos');
+        alert('Erro: Dados da transação não recebidos do backend');
+      }
+
+    } catch (error) {
+      console.error("❌ Erro na confirmação do prestador:", error);
+      
+      let mensagemErro = "Erro desconhecido";
+      
+      if (error.response) {
+        mensagemErro = error.response.data?.erro || 
+                      error.response.data?.detalhes || 
+                      `Erro HTTP ${error.response.status}`;
+        
+        if (error.response.status === 401 || error.response.status === 422) {
+          if (desconectarCarteira) desconectarCarteira();
+          navigate('/');
+          return;
+        }
+      } else if (error.request) {
+        mensagemErro = "Erro de rede. Verifique sua conexão.";
+      } else if (error.message) {
+        mensagemErro = error.message;
+      }
+      
+      alert(`Erro na confirmação: ${mensagemErro}`);
+    }
+  };
+
+  // Função para determinar se o usuário é cliente ou prestador do contrato
+  const getUserRole = () => {
+    const userAddress = usuarioData.address?.toLowerCase();
+    const clienteAddr = addressCliente?.toLowerCase();
+    const freelaAddr = addressFreela?.toLowerCase();
+    
+    if (userAddress === clienteAddr) return 'cliente';
+    if (userAddress === freelaAddr) return 'prestador';
+    return null;
+  };
+
   if (loading && !errorPage) {
     return (
       <>
@@ -751,9 +1052,36 @@ function PerfilUsuario() {
                   </button>
                 ) : (
                   <>
-                    <button onClick={handleDepositar} className="botao_opcao_contrato">
-                      Depositar Fundos
-                    </button>
+                    {/* Botão de Depositar - só para cliente */}
+                    {getUserRole() === 'cliente' && (
+                      <button onClick={handleDepositar} className="botao_opcao_contrato">
+                        Depositar Fundos
+                      </button>
+                    )}
+                    
+                    {/* Botão de Confirmação do Cliente */}
+                    {getUserRole() === 'cliente' && (
+                      <button 
+                        onClick={handleConfirmarCliente} 
+                        className="botao_opcao_contrato"
+                        style={{marginLeft: '10px', background: '#4CAF50'}}
+                      >
+                        Confirmar como Cliente
+                      </button>
+                    )}
+                    
+                    {/* Botão de Confirmação do Prestador */}
+                    {getUserRole() === 'prestador' && (
+                      <button 
+                        onClick={handleConfirmarPrestador} 
+                        className="botao_opcao_contrato"
+                        style={{marginLeft: '10px', background: '#FF9800'}}
+                      >
+                        Confirmar como Prestador
+                      </button>
+                    )}
+                    
+                    {/* Botão de Ver Negociação Associada */}
                     {negociacaoAssociada && (
                       <button 
                         onClick={() => navigate(`/negociar/${negociacaoAssociada._id}`)}
