@@ -22,8 +22,8 @@ function App() {
         <Route path="/categorias/:id" element={<Categoria />} />
         <Route path="/categorias" element={<ContrateCategorias />} />
         <Route path="/perfil/:id" element={<PaginaPerfil />} />
-        <Route path="/avaliacaocontratante" element={<AvaliacaoContratante />} />
-        <Route path="/avaliacaofreela" element={<AvaliacaoFreela />} />
+        <Route path="/avaliacaocontratante/:contratoId" element={<AvaliacaoContratante />} />
+        <Route path="/avaliacaofreela/:contratoId" element={<AvaliacaoFreela />} />
         <Route path="/perfilusuario" element={<PerfilUsuario />} />
         <Route path="/categorias/servicos/:title" element={<UsuariosPorServico />} />
         <Route path="/profissionais" element={<ProfissionaisPage />} />

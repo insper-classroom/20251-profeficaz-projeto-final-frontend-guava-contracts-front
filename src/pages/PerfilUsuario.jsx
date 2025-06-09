@@ -1322,6 +1322,7 @@ function PerfilUsuario() {
                     >
                       Visualizar Detalhes
                     </button>
+                    <a href={`${API_BASE_URL}/avaliacaofreela/${addressContrato}`}>Avalie o prestador(a)!</a>
                   </div>
                 </div>
               </div>

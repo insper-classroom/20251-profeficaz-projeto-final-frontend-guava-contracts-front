@@ -1,23 +1,34 @@
 import React, { useState } from 'react';
 import '../styles/AvaliacaoFreela.css';
 import { useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 function AvaliacaoFreela() {
+  const contratoId = useParams()
   const [nota, setNota] = useState(0);
   const [descricao, setDescricao] = useState('');
   const navigate = useNavigate();
   const handleStarClick = (value) => {
     setNota(value);
   };
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Nota:', nota);
     console.log('Descrição:', descricao);
     alert('Avaliação enviada com sucesso!');
+    axios.put(`http://localhost:5173/avaliacaofreela/${contratoId}`, {nota})
+    .then((response) => {
+      console.log("Avaliação enviada com sucesso:", response.data);
+    })
+    .catch((error) => {
+      console.error("Erro ao enviar avaliação:", error);
+      alert('Erro ao enviar avaliação. Tente novamente.');
+    });
     setNota(0);
     setDescricao('');
-    navigate('/');
+    navigate('/perfilusuario'); // Redireciona para a página de perfil do usuário
   };
 
   return (
