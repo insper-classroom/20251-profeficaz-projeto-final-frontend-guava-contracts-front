@@ -135,17 +135,7 @@ function PerfilUsuario() {
     setNegociacaoAssociada(null);
     setNegociacaoSelecionada(null); // Limpar negociação selecionada
     
-    // Debug: ver estrutura completa do contrato
-    console.log("=== DEBUG CONTRATO ===");
-    console.log("Contrato completo:", contrato);
-    console.log("contract_address:", contrato.contract_address);
-    console.log("=====================");
-    
-    // Usar contract_address primeiro (campo correto)
-    const contratoAddress = contrato.contract_address || 
-                            contrato.address_contrato || 
-                            contrato.endereco_contrato ||
-                            contrato.blockchain_address;
+    const contratoAddress = contrato.contract_address
     
     const contratoId = contrato.id_contrato || contrato._id;
     
