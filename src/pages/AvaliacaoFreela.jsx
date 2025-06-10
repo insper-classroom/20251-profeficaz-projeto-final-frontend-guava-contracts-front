@@ -18,7 +18,7 @@ function AvaliacaoFreela() {
     console.log('Nota:', nota);
     console.log('Descrição:', descricao);
     alert('Avaliação enviada com sucesso!');
-    axios.put(`http://localhost:5173/contratos/avaliacaofreela/${contratoId}`, {nota})
+    axios.put(`http://localhost:5000/contratos/avaliacaofreela/${contratoId}`, {nota})
     .then((response) => {
       console.log("Avaliação enviada com sucesso:", response.data);
     })

@@ -19,7 +19,7 @@ function AvaliacaoContratante() {
     console.log('Nota:', nota);
     console.log('Descrição:', descricao);
     alert('Avaliação enviada com sucesso!');
-    axios.put(`http://localhost:3000/contratos/avaliacaocontratante/${contratoId}`, {
+    axios.put(`http://localhost:5000/contratos/avaliacaocontratante/${contratoId}`, {
       avaliacao: {
         nota
       },
