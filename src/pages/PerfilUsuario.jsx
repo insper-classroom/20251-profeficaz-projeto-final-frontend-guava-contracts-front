@@ -30,6 +30,7 @@ function PerfilUsuario() {
   const [loadingDetalhes, setLoadingDetalhes] = useState(false);
   const [contratoAtual, setContratoAtual] = useState(null);
   const [negociacaoAssociada, setNegociacaoAssociada] = useState(null);
+  const [contratoId, setContratoId] = useState(null);
 
   // Estados para notificações de negociação
   const [negociacoesPendentes, setNegociacoesPendentes] = useState([]);
@@ -137,7 +138,8 @@ function PerfilUsuario() {
     
     const contratoAddress = contrato.contract_address
     
-    const contratoId = contrato.id_contrato || contrato._id;
+    const contratoId = contrato._id;
+
     
     console.log("Endereço extraído:", contratoAddress);
     console.log("ID do contrato:", contratoId);
@@ -184,6 +186,7 @@ function PerfilUsuario() {
 
     // Definir os endereços finais
     setAddressContrato(contratoAddress);
+    console.log("Endereço do contrato definido:", contratoAddress);
     setAddressCliente(clienteAddress);
     setAddressFreela(freelaAddress);
 
@@ -272,6 +275,8 @@ function PerfilUsuario() {
           setContratosCliente(response.data.contratos_como_cliente || []);
           setContratosPrestador(response.data.contratos_como_prestador || []);
           setContratos(response.data.contratos || response.data.dados || response.data || []);
+          setContratoId(response.data.contratos_como_cliente._id || response.data.contratos_como_prestador._id || null);
+
         }
       } catch (error) {
         if (isMounted) {
@@ -1294,7 +1299,7 @@ function PerfilUsuario() {
                     >
                       Visualizar Detalhes
                     </button>
-                    <a href={`http://localhost:5173/avaliacaofreela/${contrato.contract_address}`} className="botao_visualizar_contrato">Avalie o cliente!</a>
+                    <a href={`http://localhost:5173/avaliacaocontratante/${contrato._id}`} className="avaliar">Avalie o cliente!</a>
                   </div>
                 </div>
               </div>
@@ -1323,7 +1328,7 @@ function PerfilUsuario() {
                     >
                       Visualizar Detalhes
                     </button>
-                    <a href={`http://localhost:5173/avaliacaocontratante/${addressContrato}`} className="botao_visualizar_contrato">Avalie o prestador(a)!</a>
+                    <a href={`http://localhost:5173/avaliacaofreela/${contrato._id}`} className="avaliar">Avalie o prestador(a)!</a>
                   </div>
                 </div>
               </div>

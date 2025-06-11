@@ -5,7 +5,8 @@ import axios from 'axios';
 
 
 function AvaliacaoContratante() {
-  const { contratoId } = useParams();
+  const AUTH_TOKEN_KEY = 'authToken';
+  const contratoId = useParams();
   const [nota, setNota] = useState(0);
   const [descricao, setDescricao] = useState('');
   const navigate = useNavigate();
@@ -14,31 +15,33 @@ function AvaliacaoContratante() {
     setNota(value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Nota:', nota);
-    console.log('Descrição:', descricao);
-    alert('Avaliação enviada com sucesso!');
-    axios.put(`http://localhost:5000/contratos/avaliacaocontratante/${contratoId}`, {
-      avaliacao: {
-        nota
-      },
-    })
-    .then(() => {
-      console.log('Avaliação atualizada com sucesso');
-    })
-    .catch((error) => {
+    try {
+      await axios.put(
+        `http://127.0.0.1:5000/contratos/avaliacaocontratante/${contratoId.contratoId}`,
+        {
+            nota
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem(AUTH_TOKEN_KEY)}`
+          }
+        }
+      );
+      // Optionally, show a user-friendly notification here
+      setNota(0);
+      setDescricao('');
+      navigate('/perfilusuario'); // Redireciona para a página de perfil do usuário
+    } catch (error) {
       console.error('Erro ao atualizar avaliação:', error);
-      alert('Erro ao enviar avaliação. Tente novamente mais tarde.');
-    });
-    setNota(0);
-    setDescricao('');
-    navigate('/');
+      // Optionally, show a user-friendly error notification here
+    }
   };
 
   return (
     <div className="avaliacao-container">
-      <h1>Avaliar Contratante</h1>
+      <h1>Avaliar freelancer</h1>
       <form onSubmit={handleSubmit}>
         <div className="avaliacao-stars">
           <div className="stars">

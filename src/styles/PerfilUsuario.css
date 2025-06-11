@@ -31,10 +31,17 @@
   width: 25%;
   padding: 1%;
   align-items: flex-end;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: space-around;
 }
 
-.botao_visualizar_contrato {
+.avaliar {
+  text-decoration: none;
+
+}
+
+.botao_visualizar_contrato,
+.avaliar {
   width: 90%;
   border-style: none;
   height: 30%;
@@ -42,12 +49,14 @@
   background: linear-gradient(90deg, #6e2feb, #a74cf2);
   font-size: 1.1rem;
   font-weight: 700;
+  text-align: center;
   color: white;
   border-radius: 8px;
   transition: all 0.3s ease;
 }
 
-.botao_visualizar_contrato:hover {
+.botao_visualizar_contrato:hover,
+.avaliar:hover {
   width: 90%;
   border-style: none;
   height: 30%;
@@ -93,7 +102,8 @@
 
 }
 
-.tab_prestador_false, .tab_cliente_false {
+.tab_prestador_false,
+.tab_cliente_false {
   width: 49%;
   border-style: none;
   outline: none;
@@ -104,7 +114,8 @@
   font-size: 1rem;
 }
 
-.tab_prestador_true, .tab_cliente_true {
+.tab_prestador_true,
+.tab_cliente_true {
   width: 49%;
   border-style: none;
   outline: none;
@@ -140,9 +151,10 @@
   color: #ffffff;
   text-decoration: none;
   font-weight: 600;
-  background: linear-gradient(90deg, rgba(142, 60, 229, 1) 0%, rgba(100, 40, 200, 1) 100%); /* Gradiente roxo mais vibrante */
+  background: linear-gradient(90deg, rgba(142, 60, 229, 1) 0%, rgba(100, 40, 200, 1) 100%);
+  /* Gradiente roxo mais vibrante */
   transition: box-shadow 0.21s ease;
-  
+
 }
 
 
@@ -153,13 +165,15 @@
   color: #ffffff;
   text-decoration: none;
   font-weight: 600;
-  background: linear-gradient(90deg, rgba(142, 60, 229, 1) 0%, rgba(100, 40, 200, 1) 100%); /* Gradiente roxo mais vibrante */
+  background: linear-gradient(90deg, rgba(142, 60, 229, 1) 0%, rgba(100, 40, 200, 1) 100%);
+  /* Gradiente roxo mais vibrante */
   box-shadow: 1px 3px 5px #36227F;
-  transform: translateY(-1px); /* Leve elevação */
+  transform: translateY(-1px);
+  /* Leve elevação */
 }
 
 .overlay-perfil {
-  background: rgba(49,49,49,0.8);
+  background: rgba(49, 49, 49, 0.8);
 }
 
 .detalhes_perfil .edit-profile-button,
@@ -178,12 +192,14 @@
 }
 
 .detalhes_perfil .edit-profile-button {
-  background-color: #6e2feb; /* Cor primária */
+  background-color: #6e2feb;
+  /* Cor primária */
   color: white;
 }
+
 .detalhes_perfil .edit-profile-button:hover {
   background-color: #5a1fcf;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .edit-profile-form {
@@ -228,24 +244,30 @@
 }
 
 .detalhes_perfil .save-profile-button {
-  background-color: #28a745; /* Verde para salvar */
+  background-color: #28a745;
+  /* Verde para salvar */
   color: white;
 }
+
 .detalhes_perfil .save-profile-button:hover {
   background-color: #218838;
 }
+
 .detalhes_perfil .save-profile-button:disabled {
   background-color: #a3d8b0;
   cursor: not-allowed;
 }
 
 .detalhes_perfil .cancel-edit-button {
-  background-color: #6c757d; /* Cinza para cancelar */
+  background-color: #6c757d;
+  /* Cinza para cancelar */
   color: white;
 }
+
 .detalhes_perfil .cancel-edit-button:hover {
   background-color: #5a6268;
 }
+
 .detalhes_perfil .cancel-edit-button:disabled {
   background-color: #b0b6bb;
   cursor: not-allowed;
@@ -281,16 +303,16 @@
 
 
 .user-categories-view {
-  margin-top: 0.5rem; 
+  margin-top: 0.5rem;
   margin-bottom: 0.5rem;
 }
 
-.user-categories-view .desc_perfil { 
+.user-categories-view .desc_perfil {
   margin-bottom: 0.25rem;
 }
 
 .user-categories-list {
-  list-style-type: none; 
+  list-style-type: none;
   padding-left: 0;
   margin-top: 0.25rem;
 }
@@ -298,10 +320,10 @@
 .user-category-item {
   font-size: 0.95rem;
   color: #333;
-  background-color: #f0f0f0; 
+  background-color: #f0f0f0;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
-  display: inline-block; 
+  display: inline-block;
   margin-right: 0.5rem;
   margin-bottom: 0.5rem;
 }
@@ -335,7 +357,7 @@
   height: auto;
   max-height: 85vh;
   overflow-y: auto;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .modal-content-perfil h2 {
@@ -388,6 +410,7 @@
 .botao_cancelar_contrato_modal {
   background: #dc3545;
 }
+
 .botao_cancelar_contrato_modal:hover {
   background: #c82333;
 }
@@ -402,8 +425,9 @@
   cursor: pointer;
   font-weight: 600;
   transition: background-color 0.3s ease;
-  width: 100%; 
+  width: 100%;
 }
+
 .botao_fechar_modal_perfil:hover {
   background-color: #5a6268;
 }
@@ -528,7 +552,7 @@
   width: 100%;
   margin: 0 0 20px 0;
   background: linear-gradient(135deg, #2196F3, #21CBF3);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   overflow: hidden;
 }
 
@@ -549,8 +573,15 @@
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 .texto_notificacao {
@@ -574,7 +605,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   padding: 8px 12px;
   border-radius: 4px;
   border-left: 3px solid #fff;
@@ -612,7 +643,7 @@
 }
 
 .botao_detalhes_negociacao_simples {
-  background: rgba(255,255,255,0.8);
+  background: rgba(255, 255, 255, 0.8);
   color: #2196F3;
   border: none;
   padding: 4px 8px;
@@ -637,22 +668,22 @@
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .icone_notificacao {
     margin-right: 10px;
     margin-bottom: 5px;
   }
-  
+
   .item_negociacao_simples {
     flex-direction: column;
     align-items: flex-start;
     gap: 6px;
   }
-  
+
   .item_negociacao_simples span {
     margin-bottom: 4px;
   }
-  
+
   .botoes_negociacao_simples {
     align-self: flex-end;
   }

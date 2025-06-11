@@ -2,14 +2,18 @@ import React, { useState } from 'react';
 import '../styles/AvaliacaoFreela.css';
 import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
+import axios from 'axios';
 
 function AvaliacaoFreela() {
+
+  const AUTH_TOKEN_KEY = 'authToken';
   const contratoId = useParams()
   const [nota, setNota] = useState(0);
   const [descricao, setDescricao] = useState('');
   const navigate = useNavigate();
   const handleStarClick = (value) => {
     setNota(value);
+    console.log(nota)
   };
   
 
@@ -17,8 +21,14 @@ function AvaliacaoFreela() {
     e.preventDefault();
     console.log('Nota:', nota);
     console.log('Descrição:', descricao);
+    console.log('Contrato ID:', contratoId);
     alert('Avaliação enviada com sucesso!');
-    axios.put(`http://localhost:5000/contratos/avaliacaofreela/${contratoId}`, {nota})
+    axios.put(`http://127.0.0.1:5000/contratos/avaliacaofreela/${contratoId.contratoId}`, {nota},
+ {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem(AUTH_TOKEN_KEY)}`
+    }
+  })
     .then((response) => {
       console.log("Avaliação enviada com sucesso:", response.data);
     })
