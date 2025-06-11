@@ -25,9 +25,6 @@
   justify-content: space-around;
 }
 
-
-
-
 .categoria_link {
   margin: 20px;
   flex: 1 1 calc(25% - 1.5rem); /* até 4 por linha com gap */
@@ -65,3 +62,26 @@
   font-weight: 600;
 }
 
+.container_da_categoria {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 15px;
+  text-align: center;
+}
+
+.titulo_da_categoria {
+  margin-bottom: auto;
+}
+
+.icone_categoria {
+  margin-top: auto;
+  margin-bottom: 10px;
+}
+
+.icone_categoria svg {
+  color: #fff;
+  opacity: 0.8;
+}
