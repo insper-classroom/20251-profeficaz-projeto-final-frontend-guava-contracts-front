@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ContaContext } from '../context/ContaContext';
 import '../styles/Negociacao_Contrato.css';
+import Navbar from '../components/Navbar.jsx';
  
 const API_BASE_URL = 'http://127.0.0.1:5000';
 
@@ -433,187 +434,191 @@ function PaginaNegociacao() {
                          (currentUserRole === 'client' && negotiationDetails.contrata_proposta > 0);
 
   return (
-    <div className="negotiation-container">
-      <h1 className="negotiation-title">Proposta de Negociação</h1>
-      <p>ID da Negociação: {negotiationId}</p>
-      <p>Cliente: {negotiationDetails.cliente}</p>
-      <p>Prestador: {negotiationDetails.prestador}</p>
-      <p>Seu Papel: {currentUserRole === 'client' ? 'Cliente' : 'Freelancer'}</p>
+    <>
+      <Navbar />
+      <div className="negotiation-container">
+        <h1 className="negotiation-title">Proposta de Negociação</h1>
+        <p>ID da Negociação: {negotiationId}</p>
+        <p>Cliente: {negotiationDetails.cliente}</p>
+        <p>Prestador: {negotiationDetails.prestador}</p>
+        <p>Seu Papel: {currentUserRole === 'client' ? 'Cliente' : 'Freelancer'}</p>
 
-      {statusMessage && (
-        <div className={`status-message ${isMyTurn && !isFinalized ? 'my-turn' : ''} ${isFinalized ? 'finalized' : ''}`}>
-          {statusMessage}
-        </div>
-      )}
-
-      <div className="negotiation-history">
-        <h2 className="history-title">Histórico de Propostas</h2>
-        {negotiationDetails.proposta === 0 ? (
-          <p className="history-empty">Nenhuma proposta ainda.</p>
-        ) : (
-          <ul>
-            {negotiationDetails.proposta > 0 && (
-              <li className="history-item item-client">
-                <strong>Cliente</strong> propôs {negotiationDetails.proposta.toFixed(4)} ETH
-              </li>
-            )}
-            {negotiationDetails.contrata_proposta > 0 && (
-              <li className="history-item item-freelancer">
-                <strong>Freelancer</strong> contrapropôs {negotiationDetails.contrata_proposta.toFixed(4)} ETH
-              </li>
-            )}
-            {negotiationDetails.valor_final > 0 && (
-              <li className="history-item item-accepted">
-                <strong>Negociação aceita</strong> por {negotiationDetails.valor_final.toFixed(4)} ETH
-              </li>
-            )}
-            {negotiationDetails.valor_final === -1 && (
-              <li className="history-item item-rejected">
-                <strong>Negociação rejeitada</strong>
-              </li>
-            )}
-          </ul>
+        {statusMessage && (
+          <div className={`status-message ${isMyTurn && !isFinalized ? 'my-turn' : ''} ${isFinalized ? 'finalized' : ''}`}>
+            {statusMessage}
+          </div>
         )}
-      </div>
 
-      {!isFinalized && isMyTurn && (
-        <div className="negotiation-actions">
-          <h2 className="actions-title">Sua Vez</h2>
-          <div className="input-group">
-            <input
-              type="number"
-              className="offer-input"
-              placeholder="Digite o valor (R$)"
-              value={currentOfferInput}
-              onChange={handleOfferInputChange}
-              step="0.01"
-              min="0"
-            />
+        <div className="negotiation-history">
+          <h2 className="history-title">Histórico de Propostas</h2>
+          {negotiationDetails.proposta === 0 ? (
+            <p className="history-empty">Nenhuma proposta ainda.</p>
+          ) : (
+              <ul>
+                {negotiationDetails.proposta > 0 && (
+                  <li className="history-item item-client">
+                    <strong>Cliente</strong> propôs {negotiationDetails.proposta.toFixed(4)} ETH
+                  </li>
+                )}
+                {negotiationDetails.contrata_proposta > 0 && (
+                  <li className="history-item item-freelancer">
+                    <strong>Freelancer</strong> contrapropôs {negotiationDetails.contrata_proposta.toFixed(4)} ETH
+                  </li>
+                )}
+                {negotiationDetails.valor_final > 0 && (
+                  <li className="history-item item-accepted">
+                    <strong>Negociação aceita</strong> por {negotiationDetails.valor_final.toFixed(4)} ETH
+                  </li>
+                )}
+                {negotiationDetails.valor_final === -1 && (
+                  <li className="history-item item-rejected">
+                    <strong>Negociação rejeitada</strong>
+                  </li>
+                )}
+              </ul>
+            )}
+        </div>
+
+        {!isFinalized && isMyTurn && (
+          <div className="negotiation-actions">
+            <h2 className="actions-title">Sua Vez</h2>
+            <div className="input-group">
+              <input
+                type="number"
+                className="offer-input"
+                placeholder="Digite o valor (R$)"
+                value={currentOfferInput}
+                onChange={handleOfferInputChange}
+                step="0.01"
+                min="0"
+              />
+              <button
+                className="send-button"
+                onClick={() => submitNegotiationAction('propose')}
+                disabled={!currentOfferInput || loading}
+              >
+                {negotiationDetails.proposta === 0 && currentUserRole === 'client' ? 
+                  'Enviar Proposta Inicial' : 'Enviar Contraproposta'}
+              </button>
+            </div>
+
+            {canAcceptReject && (
+              <div className="action-buttons">
+                <button
+                  className="reject-button"
+                  onClick={() => submitNegotiationAction('reject')}
+                  disabled={loading}
+                >
+                  Rejeitar Proposta Atual
+                </button>
+                <button
+                  className="accept-button"
+                  onClick={criarContrato}
+                  disabled={loading}
+                >
+                  Aceitar Proposta e Finalizar
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {currentUserRole === 'client' && (
+          <div className="cancel-section" style={{marginTop: '20px'}}>
             <button
-              className="send-button"
-              onClick={() => submitNegotiationAction('propose')}
-              disabled={!currentOfferInput || loading}
+              className="cancel-button"
+              onClick={cancelarNegociacao}
+              disabled={loading}
+              style={{
+                backgroundColor: '#d32f2f',
+                color: 'white',
+                border: 'none',
+                padding: '10px 20px',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
             >
-              {negotiationDetails.proposta === 0 && currentUserRole === 'client' ? 
-                'Enviar Proposta Inicial' : 'Enviar Contraproposta'}
+              Cancelar Negociação
             </button>
           </div>
-          
-          {canAcceptReject && (
-            <div className="action-buttons">
-              <button
-                className="reject-button"
-                onClick={() => submitNegotiationAction('reject')}
-                disabled={loading}
-              >
-                Rejeitar Proposta Atual
-              </button>
-              <button
-                className="accept-button"
-                onClick={criarContrato}
-                disabled={loading}
-              >
-                Aceitar Proposta e Finalizar
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-      
-      {currentUserRole === 'client' && (
-      <div className="cancel-section" style={{marginTop: '20px'}}>
-        <button
-          className="cancel-button"
-          onClick={cancelarNegociacao}
-          disabled={loading}
-          style={{
-            backgroundColor: '#d32f2f',
-            color: 'white',
-            border: 'none',
-            padding: '10px 20px',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
-          Cancelar Negociação
-        </button>
-      </div>
-    )}
+        )}
 
-      {isFinalized && (
-        <div className="negotiation-finalized">
-          {statusMessage}
-          {/* Adicionar botão Fechar Contrato apenas para clientes quando negociação foi aceita */}
-          {currentUserRole === 'client' && negotiationDetails.valor_final > 0 && !negotiationDetails.tx_hash_contrato && (
-            <div style={{marginTop: '20px'}}>
-              <button
-                className="contract-button"
-                onClick={criarContrato}
-                disabled={loading}
-                style={{
-                  backgroundColor: '#2e7d32',
-                  color: 'white',
-                  border: 'none',
-                  padding: '12px 24px',
-                  borderRadius: '4px',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  opacity: loading ? 0.6 : 1,
-                  fontSize: '16px',
-                  fontWeight: 'bold'
-                }}
-              >
-                {loading ? 'Criando Contrato...' : 'Fechar Contrato na Blockchain 📄'}
-              </button>
-              <p style={{fontSize: '12px', color: '#666', marginTop: '8px'}}>
-                ⚠️ Esta ação criará um contrato inteligente real na blockchain
-              </p>
-            </div>
-          )}
-
-          {/* Mostrar link do contrato se já foi criado */}
-          {negotiationDetails.tx_hash_contrato && (
-            <div style={{marginTop: '20px', padding: '15px', backgroundColor: '#e8f5e8', borderRadius: '4px'}}>
-              <p style={{color: '#2e7d32', fontWeight: 'bold'}}>
-                ✅ Contrato criado na blockchain!
-                {negotiationDetails.status_contrato === 'CRIADO' && ' 📄 Registrado no banco'}
-              </p>
-              <p>
-                <a 
-                  href={`https://sepolia.etherscan.io/tx/${negotiationDetails.tx_hash_contrato}`} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  style={{color: '#1976d2', textDecoration: 'underline'}}
+        {isFinalized && (
+          <div className="negotiation-finalized">
+            {statusMessage}
+            {/* Adicionar botão Fechar Contrato apenas para clientes quando negociação foi aceita */}
+            {currentUserRole === 'client' && negotiationDetails.valor_final > 0 && !negotiationDetails.tx_hash_contrato && (
+              <div style={{marginTop: '20px'}}>
+                <button
+                  className="contract-button"
+                  onClick={criarContrato}
+                  disabled={loading}
+                  style={{
+                    backgroundColor: '#2e7d32',
+                    color: 'white',
+                    border: 'none',
+                    padding: '12px 24px',
+                    borderRadius: '4px',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    opacity: loading ? 0.6 : 1,
+                    fontSize: '16px',
+                    fontWeight: 'bold'
+                  }}
                 >
-                  Ver transação no Etherscan
-                </a>
-              </p>
-              {negotiationDetails.contract_address && (
-                <div>
-                  <p>
-                    <a 
-                      href={`https://sepolia.etherscan.io/address/${negotiationDetails.contract_address}`} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      style={{color: '#1976d2', textDecoration: 'underline'}}
-                    >
-                      Ver contrato no Etherscan
-                    </a>
-                  </p>
-                  <p style={{fontSize: '12px', color: '#666'}}>
-                    Endereço: {negotiationDetails.contract_address}
-                  </p>
-                  {negotiationDetails.db_contrato_id && (
-                    <p style={{fontSize: '12px', color: '#666'}}>
-                      ID no banco: {negotiationDetails.db_contrato_id}
+                  {loading ? 'Criando Contrato...' : 'Fechar Contrato na Blockchain 📄'}
+                </button>
+                <p style={{fontSize: '12px', color: '#666', marginTop: '8px'}}>
+                  ⚠️ Esta ação criará um contrato inteligente real na blockchain
+                </p>
+              </div>
+            )}
+
+            {/* Mostrar link do contrato se já foi criado */}
+            {negotiationDetails.tx_hash_contrato && (
+              <div style={{marginTop: '20px', padding: '15px', backgroundColor: '#e8f5e8', borderRadius: '4px'}}>
+                <p style={{color: '#2e7d32', fontWeight: 'bold'}}>
+                  ✅ Contrato criado na blockchain!
+                  {negotiationDetails.status_contrato === 'CRIADO' && ' 📄 Registrado no banco'}
+                </p>
+                <p>
+                  <a 
+                    href={`https://sepolia.etherscan.io/tx/${negotiationDetails.tx_hash_contrato}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    style={{color: '#1976d2', textDecoration: 'underline'}}
+                  >
+                    Ver transação no Etherscan
+                  </a>
+                </p>
+                {negotiationDetails.contract_address && (
+                  <div>
+                    <p>
+                      <a 
+                        href={`https://sepolia.etherscan.io/address/${negotiationDetails.contract_address}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        style={{color: '#1976d2', textDecoration: 'underline'}}
+                      >
+                        Ver contrato no Etherscan
+                      </a>
                     </p>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+                    <p style={{fontSize: '12px', color: '#666'}}>
+                      Endereço: {negotiationDetails.contract_address}
+                    </p>
+                    {negotiationDetails.db_contrato_id && (
+                      <p style={{fontSize: '12px', color: '#666'}}>
+                        ID no banco: {negotiationDetails.db_contrato_id}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </>
+
   );
 }
 
